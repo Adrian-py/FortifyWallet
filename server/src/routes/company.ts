@@ -1,9 +1,9 @@
 import express from "express";
-import { companyInfo } from "../interfaces/companyInterface";
+import { companyInfo } from "@interfaces/companyInterface";
 import {
   saveCompanyInfo,
   verifyCompanyInfo,
-} from "../services/onboardingService";
+} from "@services/onboardingService";
 
 const app = express.Router();
 

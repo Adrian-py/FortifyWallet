@@ -1,8 +1,9 @@
+import "module-alias/register";
 import express from "express";
 import "dotenv/config";
 
-import company from "../routes/company";
-import { connectToDatabase } from "../services/databaseService";
+import company from "@routes/company";
+import { connectToDatabase } from "@services/databaseService";
 
 const app = express();
 const PORT: String = process.env.PORT || "3000";

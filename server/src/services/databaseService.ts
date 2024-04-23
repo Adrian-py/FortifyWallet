@@ -26,7 +26,6 @@ async function initializeDatabase() {
     "CREATE TABLE IF NOT EXISTS users (user_id int AUTO_INCREMENT, username varchar(20), email varchar(20), password varchar(20), role_id int, PRIMARY KEY(user_id), FOREIGN KEY(role_id) REFERENCES roles(role_id))",
     "CREATE TABLE IF NOT EXISTS wallets (wallet_id int AUTO_INCREMENT, user_id int, pubkey varchar(100), priv_key varchar(100), PRIMARY KEY(wallet_id), FOREIGN KEY(user_id) REFERENCES users(user_id))",
   ];
-
   INIT_TABLE_QUERY.forEach((query, ind) => {
     connection.query(query, (err: Error) => {
       if (err) {
