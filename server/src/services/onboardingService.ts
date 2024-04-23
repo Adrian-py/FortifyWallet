@@ -1,5 +1,4 @@
 import { MysqlError } from "mysql";
-
 import { companyInfo } from "@interfaces/companyInterface";
 import { db_connection } from "@services/databaseService";
 

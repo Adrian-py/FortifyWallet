@@ -1,11 +1,17 @@
 import express from "express";
+import cors from "cors";
 import { companyInfo } from "@interfaces/companyInterface";
 import {
   saveCompanyInfo,
   verifyCompanyInfo,
 } from "@services/onboardingService";
+import path from "path";
 
 const app = express.Router();
+
+app.get("/test", (_req, res) => {
+  res.sendFile(path.join(__dirname, "../../public/setup.html"));
+});
 
 app.post("/onboarding", async (req, res) => {
   const companyInfo: companyInfo = {
@@ -27,12 +33,12 @@ app.post("/onboarding", async (req, res) => {
     res.status(500).json({
       code: 500,
       message: "Error: Failed to Save Company Details",
-      error: err.sqlMessage,
+      error: "Duplicate Entry: Company data already exists!",
     });
   }
 });
 
-app.get("/verify", async (req, res) => {
+app.get("/verify", async (_req, res) => {
   try {
     const company_info = await verifyCompanyInfo();
     if (!company_info) {

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Fortify Wallet Setup</title>
+    <link rel="stylesheet" href="/setup.css" />
+  </head>
+  <body>
+    <main class="container">
+      <h1 class="title">Fortify Wallet Setup</h1>
+      <h2 class="subtitle">
+        Welcome to Fortify Wallet, to conduct initial setup of the application,
+        please provide your company's information!
+      </h2>
+
+      <p class="alert" id="alert"></p>
+      <form id="setup-form">
+        <label for="">Company Name</label>
+        <input type="text" id="company_name" name="company-name" required />
+        <label for="">Company Email</label>
+        <input type="text" id="company_email" name="company-email" required />
+        <label for="">Company Description</label>
+        <textarea
+          name="company-description"
+          id="company_desc"
+          cols="30"
+          rows="10"
+          required
+        ></textarea>
+        <input type="submit" value="Submit" id="submit-button" />
+      </form>
+    </main>
+  </body>
+  <script src="/setup.js" defer></script>
+</html>
