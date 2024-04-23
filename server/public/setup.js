@@ -7,7 +7,7 @@ const submit_button = document.getElementById("submit-button"),
 
 submit_button.addEventListener("click", async (e) => {
   e.preventDefault();
-  await fetch(window.location.origin + "company/onboarding", {
+  await fetch(window.location.origin + "/company/onboarding", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

@@ -1,15 +1,16 @@
 import express from "express";
-import cors from "cors";
+import path from "path";
+
 import { companyInfo } from "@interfaces/companyInterface";
 import {
   saveCompanyInfo,
   verifyCompanyInfo,
 } from "@services/onboardingService";
-import path from "path";
+import { seedDatabase } from "@services/databaseService";
 
 const app = express.Router();
 
-app.get("/test", (_req, res) => {
+app.get("/", (_req, res) => {
   res.sendFile(path.join(__dirname, "../../public/setup.html"));
 });
 
@@ -24,6 +25,7 @@ app.post("/onboarding", async (req, res) => {
   try {
     await saveCompanyInfo(companyInfo);
     console.log("Successfully Saved Company Details!");
+    seedDatabase();
     res.status(200).json({
       code: 200,
       message: "Successfully Saved Company Details",
