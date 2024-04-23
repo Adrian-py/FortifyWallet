@@ -1,8 +1,8 @@
 import express from "express";
 import "dotenv/config";
 
-import onboarding from "../routes/onboarding";
-import { connectToDatabase } from "../db/connect";
+import company from "../routes/company";
+import { connectToDatabase } from "../services/databaseService";
 
 const app = express();
 const PORT: String = process.env.PORT || "3000";
@@ -14,7 +14,7 @@ app.use(express.json());
 app.get("/", (_req, res) => {
   res.send("Server Running on PORT " + PORT);
 });
-app.use("/onboarding", onboarding);
+app.use("/company", company);
 
 // Initiate Server and Database
 connectToDatabase()
