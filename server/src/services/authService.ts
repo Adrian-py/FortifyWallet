@@ -29,7 +29,7 @@ async function saveAuthorizationCode(user_id: string, token: string) {
 async function getAuthorizationCode(
   token: string
 ): Promise<authorizationToken[]> {
-  const RETRIEVE_TOKEN_QUERY = `SELECT * FROM authorization_codes WHERE authorization_code = "${token}"`;
+  const RETRIEVE_TOKEN_QUERY = `SELECT * FROM authorization_codes WHERE authorization_code = '${token}'`;
   return new Promise((resolve, reject) => {
     db_connection.query(
       RETRIEVE_TOKEN_QUERY,
@@ -71,11 +71,26 @@ async function saveRefreshToken(user_id: string, refresh_token: string) {
 }
 
 async function retrieveRefreshToken(user_id: string): Promise<refreshToken[]> {
-  const RETRIEVE_REFRESH_TOKEN_QUERY = `SELECT tokens FROM tokens WHERE user_id = ${user_id}`;
+  const RETRIEVE_REFRESH_TOKEN_QUERY = `SELECT * FROM tokens WHERE user_id = ${user_id}`;
   return new Promise((resolve, reject) => {
     db_connection.query(
       RETRIEVE_REFRESH_TOKEN_QUERY,
       (err: MysqlError, res: refreshToken[]) => {
+        if (err) {
+          reject(err);
+        }
+        resolve(res);
+      }
+    );
+  });
+}
+
+async function removeRefreshToken(user_id: string) {
+  const DELETE_REFRESH_TOKEN_QUERY = `DELETE FROM tokens WHERE user_id = ${user_id}`;
+  return new Promise((resolve, reject) => {
+    db_connection.query(
+      DELETE_REFRESH_TOKEN_QUERY,
+      (err: MysqlError, res: any) => {
         if (err) {
           reject(err);
         }
@@ -91,4 +106,5 @@ export {
   deleteAuthorizationCode,
   saveRefreshToken,
   retrieveRefreshToken,
+  removeRefreshToken,
 };

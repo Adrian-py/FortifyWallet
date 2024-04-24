@@ -27,7 +27,7 @@ async function initializeDatabase() {
     "CREATE TABLE IF NOT EXISTS roles (role_id int AUTO_INCREMENT, role_name varchar(20), role_desc TEXT, PRIMARY KEY(role_id))",
     "CREATE TABLE IF NOT EXISTS users (user_id int AUTO_INCREMENT, username varchar(20) UNIQUE, email varchar(20), password varchar(100), role_id int, PRIMARY KEY(user_id), FOREIGN KEY(role_id) REFERENCES roles(role_id))",
     "CREATE TABLE IF NOT EXISTS wallets (wallet_id int AUTO_INCREMENT, user_id int, pubkey varchar(100), priv_key varchar(100), PRIMARY KEY(wallet_id), FOREIGN KEY(user_id) REFERENCES users(user_id))",
-    "CREATE TABLE IF NOT EXISTS tokens (token_id int AUTO_INCREMENT, user_id int UNIQUE, token varchar(100) UNIQUE, PRIMARY KEY(token_id), FOREIGN KEY(user_id) REFERENCES users(user_id))",
+    "CREATE TABLE IF NOT EXISTS tokens (token_id int AUTO_INCREMENT, user_id int UNIQUE, token varchar(200) UNIQUE, PRIMARY KEY(token_id), FOREIGN KEY(user_id) REFERENCES users(user_id))",
     "CREATE TABLE IF NOT EXISTS authorization_codes (auth_id int AUTO_INCREMENT, user_id int UNIQUE, authorization_code varchar(100) UNIQUE, PRIMARY KEY(auth_id), FOREIGN KEY(user_id) REFERENCES users(user_id))",
   ];
   INIT_TABLE_QUERY.forEach((query, ind) => {
