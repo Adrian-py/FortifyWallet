@@ -17,11 +17,16 @@ export default function Home() {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ username, password }),
-    }).then((res) => {
-      if (res.status === 200) {
-        router.push("/dashboard");
-      }
-    });
+    })
+      .then((res) => {
+        return res.json();
+      })
+      .then((res) => {
+        if (res.message === "Authorized!") {
+          localStorage.setItem("user", JSON.stringify(res.user));
+          router.push("/dashboard");
+        }
+      });
   };
 
   return (

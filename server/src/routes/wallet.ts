@@ -4,19 +4,28 @@ import {
   initializeWallet,
   retrieveWalletByUserId,
 } from "@services/walletService";
-import tokenMiddleware from "middleware/tokenMiddleware";
+import tokenMiddleware from "@middleware/tokenMiddleware";
 import { hasPrivilegeToCreate } from "@services/userService";
 
 const app = express.Router();
 
 app.use(tokenMiddleware);
 
-app.get("/wallets", async (req, res) => {
-  const { user_id } = req.body;
+app.post("/retrieve", async (req, res) => {
+  try {
+    console.log("called");
+    const { user_id } = req.body;
 
-  const wallet = await retrieveWalletByUserId(user_id);
-
-  return res.status(200).json({ wallet });
+    const wallet = await retrieveWalletByUserId(user_id);
+    console.log(user_id, wallet);
+    return res.status(200).json({ wallet });
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({
+      message:
+        "Error: Something wen't wrong when trying to retrieve your wallets",
+    });
+  }
 });
 
 app.get("/create", async (req, res) => {

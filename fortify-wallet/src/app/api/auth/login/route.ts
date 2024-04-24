@@ -3,6 +3,10 @@ import { cookies } from "next/headers";
 
 export async function POST(req: NextRequest) {
   const { username, password } = await req.json();
+  let user_info = {
+    username: username,
+    user_id: null,
+  };
 
   try {
     await fetch(process.env.NEXT_PUBLIC_BACKEND_URL + "/auth/login", {
@@ -21,19 +25,21 @@ export async function POST(req: NextRequest) {
       })
       .then(async (res) => {
         const response = await getAccessToken(res.authorization_code);
-        cookies().set("response", response.access_token);
-
-        // save user info in local storage to use in the client
-        let user_info = {
-          user_id: response.user.user_id,
-          username: username,
-        };
-        localStorage.setItem("user", JSON.stringify(user_info));
+        cookies().set("access_token", response.access_token);
+        user_info.user_id = response.user.user_id;
       });
 
-    return new NextResponse("", { status: 200 });
+    return new NextResponse(
+      JSON.stringify({ message: "Authorized!", user: user_info }),
+      {
+        status: 200,
+      }
+    );
   } catch (err) {
-    return new NextResponse("Invalid username or password", { status: 400 });
+    return new NextResponse(
+      "Error: Something wen't wrong whilst trying to log you in",
+      { status: 500 }
+    );
   }
 }
 
@@ -47,7 +53,7 @@ const getAccessToken = async (authorization_code: string): Promise<any> => {
   })
     .then((res) => {
       if (res.status != 200) {
-        throw { message: "Invalid authorization code" };
+        throw { message: "Error: Invalid authorization code" };
       }
       return res.json();
     })

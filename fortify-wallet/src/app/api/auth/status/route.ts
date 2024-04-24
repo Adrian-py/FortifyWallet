@@ -3,9 +3,8 @@ import { cookies } from "next/headers";
 
 export async function GET(req: NextRequest) {
   const cookie = req.cookies.get("access_token")?.value;
-  if (cookie == undefined) {
+  if (cookie == undefined)
     return new NextResponse("Not Authorized!", { status: 401 });
-  }
 
   return await fetch(process.env.NEXT_PUBLIC_BACKEND_URL + "/auth/status", {
     method: "GET",

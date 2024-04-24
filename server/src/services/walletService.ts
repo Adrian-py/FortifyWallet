@@ -40,7 +40,7 @@ async function initializeWallet(): Promise<WalletInterface> {
 async function retrieveWalletByUserId(
   user_id: string
 ): Promise<WalletInterface[]> {
-  const WALLET_QUERY = "SELECT * FROM wallet WHERE user_id = " + user_id;
+  const WALLET_QUERY = "SELECT * FROM wallets WHERE user_id = " + user_id;
   return new Promise((resolve, reject) => {
     db_connection.query(
       WALLET_QUERY,
