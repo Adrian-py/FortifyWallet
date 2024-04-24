@@ -3,14 +3,14 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import { v4 as uuidv4 } from "uuid";
 
-import { retrieveUser } from "@services/databaseService";
 import {
   deleteAuthorizationCode,
-  getAuthorizationCode,
+  retrieveAuthorizationCode,
   saveAuthorizationCode,
   removeRefreshToken,
   retrieveRefreshToken,
   saveRefreshToken,
+  retrieveUser,
 } from "@services/authService";
 import tokenMiddleware from "@middleware/tokenMiddleware";
 
@@ -37,7 +37,7 @@ app.post("/login", async (req, res) => {
 app.post("/token", async (req, res) => {
   const { authorization_code } = req.body;
 
-  const token = await getAuthorizationCode(authorization_code);
+  const token = await retrieveAuthorizationCode(authorization_code);
   if (token.length === 0)
     return res.status(400).json({ message: "Invalid authorization code" });
   const user_id = token[0].user_id;
@@ -55,6 +55,7 @@ app.post("/token", async (req, res) => {
 
   await deleteAuthorizationCode(user_id);
 
+  // if a refresh token already exists in db, remove it and save the new one
   if ((await retrieveRefreshToken(user_id)).length > 0)
     await removeRefreshToken(user_id);
   await saveRefreshToken(user_id, refreshToken);
@@ -62,6 +63,7 @@ app.post("/token", async (req, res) => {
   return res.status(200).json({
     message: "Token sucessfully generated!",
     access_token: accessToken,
+    user: { user_id },
   });
 });
 

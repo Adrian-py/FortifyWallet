@@ -6,8 +6,9 @@ import cookieParser from "cookie-parser";
 import path from "path";
 
 import auth from "@routes/auth";
-import { connectToDatabase } from "@services/databaseService";
+import { connectToDatabase } from "@db/init";
 import company from "@routes/company";
+import { initializeWallet } from "@services/walletService";
 
 const app = express();
 const PORT: String = process.env.PORT || "5000";
@@ -19,9 +20,6 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "../public/")));
 
 // Routes
-app.get("/", (_req, res) => {
-  res.send("Server Running on PORT " + PORT);
-});
 app.use("/company", company);
 app.use("/auth", auth);
 

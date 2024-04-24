@@ -6,7 +6,7 @@ import {
   saveCompanyInfo,
   verifyCompanyInfo,
 } from "@services/onboardingService";
-import { seedDatabase } from "@services/databaseService";
+import { seedDatabase } from "@db/init";
 
 const app = express.Router();
 

@@ -20,8 +20,15 @@ export async function POST(req: NextRequest) {
         return res.json();
       })
       .then(async (res) => {
-        const access_token = await getAccessToken(res.authorization_code);
-        cookies().set("access_token", access_token);
+        const response = await getAccessToken(res.authorization_code);
+        cookies().set("response", response.access_token);
+
+        // save user info in local storage to use in the client
+        let user_info = {
+          user_id: response.user.user_id,
+          username: username,
+        };
+        localStorage.setItem("user", JSON.stringify(user_info));
       });
 
     return new NextResponse("", { status: 200 });
@@ -30,7 +37,7 @@ export async function POST(req: NextRequest) {
   }
 }
 
-const getAccessToken = async (authorization_code: string): Promise<string> => {
+const getAccessToken = async (authorization_code: string): Promise<any> => {
   return await fetch(process.env.NEXT_PUBLIC_BACKEND_URL + "/auth/token", {
     method: "POST",
     headers: {
@@ -45,6 +52,6 @@ const getAccessToken = async (authorization_code: string): Promise<string> => {
       return res.json();
     })
     .then((res) => {
-      return res.access_token;
+      return res;
     });
 };

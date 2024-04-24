@@ -28,8 +28,7 @@ export default async function tokenMiddleware(
       if (err instanceof jwt.TokenExpiredError) {
         const refreshToken = await retrieveRefreshToken(userId);
         if (refreshToken.length === 0 || refreshToken[0].token === undefined) {
-          res.status(401).json({ message: "Invalid Token" });
-          next();
+          return res.status(401).json({ message: "Invalid Token" });
         }
 
         try {
@@ -46,7 +45,7 @@ export default async function tokenMiddleware(
           res.setHeader("Set-Cookie", accessToken);
           next();
         } catch (err) {
-          // session expired
+          // session expired, remove refresh token from db
           await removeRefreshToken(userId);
           return res
             .status(403)

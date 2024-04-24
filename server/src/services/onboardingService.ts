@@ -1,6 +1,7 @@
 import { MysqlError } from "mysql";
+
 import { companyInfo } from "@interfaces/companyInterface";
-import { db_connection } from "@services/databaseService";
+import { db_connection } from "@db/init";
 
 async function saveCompanyInfo(companyInfo: companyInfo) {
   const INSERT_QUERY = "INSERT INTO company SET ?";
