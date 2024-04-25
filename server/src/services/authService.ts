@@ -1,7 +1,7 @@
-import { MysqlError } from "mysql";
+import { MysqlError } from 'mysql';
 
-import { db_connection } from "@db/init";
-import userInterface from "@interfaces/userInterface";
+import { db_connection } from '@db/init';
+import userInterface from '@interfaces/userInterface';
 
 interface authorizationToken {
   token_id: number;
@@ -88,7 +88,6 @@ async function removeRefreshToken(user_id: string) {
       DELETE_REFRESH_TOKEN_QUERY,
       (err: MysqlError, res: any) => {
         if (err) reject(err);
-
         resolve(res);
       }
     );

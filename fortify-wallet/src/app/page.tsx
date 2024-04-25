@@ -1,32 +1,16 @@
 "use client";
 
+import useAuth from '@/hooks/useAuth';
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 
 export default function Home() {
-  const router = useRouter();
-
+  const { login } = useAuth();
   const [username, setUsername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    await fetch("/api/auth/login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ username, password }),
-    })
-      .then((res) => {
-        return res.json();
-      })
-      .then((res) => {
-        if (res.message === "Authorized!") {
-          localStorage.setItem("user", JSON.stringify(res.user));
-          router.push("/dashboard");
-        }
-      });
+    await login(username, password);
   };
 
   return (
