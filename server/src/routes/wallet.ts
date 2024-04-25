@@ -13,11 +13,10 @@ app.use(tokenMiddleware);
 
 app.post("/retrieve", async (req, res) => {
   try {
-    console.log("called");
     const { user_id } = req.body;
 
     const wallet = await retrieveWalletByUserId(user_id);
-    console.log(user_id, wallet);
+
     return res.status(200).json({ wallet });
   } catch (err) {
     console.log(err);

@@ -25,16 +25,16 @@ async function initializeWallet(): Promise<WalletInterface> {
   const mnemonic = bip39.entropyToMnemonic(random_bytes);
   const seed = bip39.mnemonicToSeedSync(mnemonic);
 
-  const walletMaster = bip32.fromSeed(seed, network);
-  console.log(getAddress(walletMaster.derivePath("m/0'")));
+  const wallet = bip32.fromSeed(seed, network);
+  const master = wallet.deriveHardened(44).deriveHardened(0);
 
-  const wallet: WalletInterface = {
+  const wallet_info: WalletInterface = {
     user_id: "",
-    pubkey: walletMaster.publicKey.toString("hex"),
-    address: getAddress(walletMaster.derivePath("m/0'")),
+    pubkey: wallet.publicKey.toString("hex"),
+    address: getAddress(master),
   };
 
-  return wallet;
+  return wallet_info;
 }
 
 async function retrieveWalletByUserId(
