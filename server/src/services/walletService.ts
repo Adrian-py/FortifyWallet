@@ -29,7 +29,7 @@ async function initializeWallet(): Promise<WalletInterface> {
   const master = wallet.deriveHardened(44).deriveHardened(0);
 
   const wallet_info: WalletInterface = {
-    user_id: "",
+    account_id: "",
     pubkey: wallet.publicKey.toString("hex"),
     address: getAddress(master),
   };
@@ -37,10 +37,10 @@ async function initializeWallet(): Promise<WalletInterface> {
   return wallet_info;
 }
 
-async function retrieveWalletByuser_id(
-  user_id: string
+async function retrieveWalletByaccount_id(
+  account_id: string
 ): Promise<WalletInterface[]> {
-  const WALLET_QUERY = "SELECT * FROM wallets WHERE user_id = " + user_id;
+  const WALLET_QUERY = "SELECT * FROM wallets WHERE account_id = " + account_id;
   return new Promise((resolve, reject) => {
     db_connection.query(
       WALLET_QUERY,
@@ -52,4 +52,4 @@ async function retrieveWalletByuser_id(
   });
 }
 
-export { initializeWallet, retrieveWalletByuser_id };
+export { initializeWallet, retrieveWalletByaccount_id };

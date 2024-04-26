@@ -1,20 +1,23 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
-import { CREATE_USERS_PAGE_URL } from "@/constants/constants";
+import { CREATE_ACCOUNTS_PAGE_URL } from "@/constants/constants";
 
 interface UserInterface {
-  user_id: string;
+  account_id: string;
   username: string;
   email: string;
 }
 
 export default function UsersPage() {
-  const [users, setUsers] = useState<UserInterface[]>([]);
+  const router = useRouter();
+  const [accounts, setUsers] = useState<UserInterface[]>([]);
+
   useEffect(() => {
-    const retrieveUsers = async () => {
-      await fetch("/api/user/retrieve", {
+    const retrieveAccounts = async () => {
+      await fetch("/api/account/retrieve", {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -25,18 +28,18 @@ export default function UsersPage() {
           return res.json();
         })
         .then((res) => {
-          setUsers(res.users);
+          setUsers(res.accounts);
         });
     };
-    retrieveUsers();
+    retrieveAccounts();
   }, []);
 
   return (
     <div className="">
       <div className="w-full flex justify-between items-center">
-        <h2 className="mb-[1rem] text-3xl font-bold">Users</h2>
-        <a
-          href={CREATE_USERS_PAGE_URL}
+        <h2 className="mb-[1rem] text-3xl font-bold">Accounts</h2>
+        <button
+          onClick={() => router.push(CREATE_ACCOUNTS_PAGE_URL)}
           className="w-fit px-[1.25rem] py-[0.5rem] flex gap-[0.5rem] bg-red-400 text-white rounded-md hover:scale-[1.05] transition-all duration-150"
         >
           Create Account
@@ -53,7 +56,7 @@ export default function UsersPage() {
               strokeLinejoin="round"
             />
           </svg>
-        </a>
+        </button>
       </div>
       <table className="text-left">
         <thead className="font-bold">
@@ -64,13 +67,15 @@ export default function UsersPage() {
           </tr>
         </thead>
         <tbody className="text-sm">
-          {users.map((user, ind) => (
-            <tr key={user.user_id} className="px-[1rem] py-2">
+          {accounts.map((account, ind) => (
+            <tr key={account.account_id} className="px-[1rem] py-2">
               <td className="w-[5vw] max-w-[4rem] y-2 px-2">{ind + 1}</td>
               <td className="w-[30vw] max-w-[40rem]py-2 px-2">
-                {user.username}
+                {account.username}
               </td>
-              <td className="w-[25vw] max-w-[40rem] py-2 px-2">{user.email}</td>
+              <td className="w-[25vw] max-w-[40rem] py-2 px-2">
+                {account.email}
+              </td>
             </tr>
           ))}
         </tbody>

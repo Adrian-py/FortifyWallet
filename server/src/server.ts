@@ -8,7 +8,7 @@ import path from "path";
 import auth from "@routes/auth";
 import company from "@routes/company";
 import wallet from "@routes/wallet";
-import user from "@routes/user";
+import account from "@routes/account";
 import { connectToDatabase } from "@db/init";
 
 const app = express();
@@ -24,7 +24,7 @@ app.use(express.static(path.join(__dirname, "../public/")));
 app.use("/company", company);
 app.use("/auth", auth);
 app.use("/wallet", wallet);
-app.use("/users", user);
+app.use("/accounts", account);
 
 // Initiate Server and Database
 connectToDatabase()

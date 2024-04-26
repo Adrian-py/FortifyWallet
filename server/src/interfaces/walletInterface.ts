@@ -1,5 +1,5 @@
 interface WalletInterface {
-  user_id: string;
+  account_id: string;
   pubkey: string;
   address: string;
 }

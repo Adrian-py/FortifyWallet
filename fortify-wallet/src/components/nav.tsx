@@ -1,8 +1,8 @@
-import { DASHBOARD_PAGE_URL, USERS_PAGE_URL } from "@/constants/constants";
+import { DASHBOARD_PAGE_URL, ACCOUNTS_PAGE_URL } from "@/constants/constants";
 
 export default function Navbar() {
   const user_role: string = JSON.parse(
-    localStorage.getItem("user") ?? "{}"
+    localStorage.getItem("account") ?? "{}"
   ).role;
 
   return (
@@ -15,10 +15,10 @@ export default function Navbar() {
       </a>
       {(user_role === "admin" || user_role === "head") && (
         <a
-          href={USERS_PAGE_URL}
+          href={ACCOUNTS_PAGE_URL}
           className="px-[1.5rem] py-[0.4rem] bg-slate-100 rounded-xl hover:bg-gray-200 transition-all duration-150"
         >
-          Users
+          Accounts
         </a>
       )}
     </nav>

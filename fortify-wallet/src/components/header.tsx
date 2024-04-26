@@ -5,7 +5,7 @@ import useAuth from "@/hooks/useAuth";
 export default function Header() {
   const { logout } = useAuth();
 
-  const username = JSON.parse(localStorage.getItem("user") ?? "{}").username;
+  const username = JSON.parse(localStorage.getItem("account") ?? "{}").username;
 
   const handleLogout = async () => {
     await logout();

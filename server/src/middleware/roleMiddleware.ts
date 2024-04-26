@@ -1,4 +1,4 @@
-import { getUserRole } from "@services/userService";
+import { getAccountRole } from "@services/userService";
 import { Request, Response, NextFunction } from "express";
 import jwt, { JwtPayload } from "jsonwebtoken";
 
@@ -11,15 +11,14 @@ export default async function roleMiddleware(
 
   if (access_token) {
     try {
-      const user = jwt.decode(access_token) as JwtPayload;
+      const account = jwt.decode(access_token) as JwtPayload;
 
-      const stored_role = await getUserRole(user.user_id);
+      const stored_role = await getAccountRole(account.account_id);
 
-      console.log(user, stored_role);
-      if (!stored_role || stored_role !== user.role) {
+      if (!stored_role || stored_role !== account.role) {
         return res.status(401).json({ message: "Not Authorized!" });
       }
-      // Check if user is allowed to access resource
+      // Check if account is allowed to access resource
       if (stored_role !== "admin" && stored_role !== "head") {
         return res.status(401).json({ message: "Not Authorized!" });
       }

@@ -9,7 +9,7 @@ export async function GET(req: NextRequest) {
     return new NextResponse("Not Authorized!", { status: 401 });
 
   try {
-    return await fetch(BACKEND_URL + "/users/retrieve", {
+    return await fetch(BACKEND_URL + "/accounts/retrieve", {
       method: "GET",
       headers: {
         "Content-Type": "application/json",

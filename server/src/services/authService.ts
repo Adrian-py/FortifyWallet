@@ -4,18 +4,18 @@ import { db_connection } from "@db/init";
 
 interface authorizationToken {
   token_id: number;
-  user_id: string;
+  account_id: string;
   token: string;
 }
 
 interface refreshToken {
   token_id: number;
-  user_id: string;
+  account_id: string;
   token: string;
 }
 
-async function saveAuthorizationCode(user_id: string, token: string) {
-  const SAVE_TOKEN_QUERY = `INSERT INTO authorization_codes (user_id, authorization_code) VALUES (${user_id}, '${token}')`;
+async function saveAuthorizationCode(account_id: string, token: string) {
+  const SAVE_TOKEN_QUERY = `INSERT INTO authorization_codes (account_id, authorization_code) VALUES (${account_id}, '${token}')`;
   return new Promise((resolve, reject) => {
     db_connection.query(SAVE_TOKEN_QUERY, (err: MysqlError, res: any) => {
       if (err) {
@@ -42,8 +42,8 @@ async function retrieveAuthorizationCode(
   });
 }
 
-async function deleteAuthorizationCode(user_id: string) {
-  const DELETE_TOKEN_QUERY = `DELETE FROM authorization_codes WHERE user_id = ${user_id}`;
+async function deleteAuthorizationCode(account_id: string) {
+  const DELETE_TOKEN_QUERY = `DELETE FROM authorization_codes WHERE account_id = ${account_id}`;
   return new Promise((resolve, reject) => {
     db_connection.query(DELETE_TOKEN_QUERY, (err: MysqlError, res: any) => {
       if (err) reject(err);
@@ -52,8 +52,8 @@ async function deleteAuthorizationCode(user_id: string) {
   });
 }
 
-async function saveRefreshToken(user_id: string, refresh_token: string) {
-  const SAVE_REFRESH_TOKEN_QUERY = `INSERT INTO tokens (user_id, token) VALUES (${user_id}, '${refresh_token}')`;
+async function saveRefreshToken(account_id: string, refresh_token: string) {
+  const SAVE_REFRESH_TOKEN_QUERY = `INSERT INTO tokens (account_id, token) VALUES (${account_id}, '${refresh_token}')`;
   return new Promise((resolve, reject) => {
     db_connection.query(
       SAVE_REFRESH_TOKEN_QUERY,
@@ -66,8 +66,10 @@ async function saveRefreshToken(user_id: string, refresh_token: string) {
   });
 }
 
-async function retrieveRefreshToken(user_id: string): Promise<refreshToken[]> {
-  const RETRIEVE_REFRESH_TOKEN_QUERY = `SELECT * FROM tokens WHERE user_id = ${user_id}`;
+async function retrieveRefreshToken(
+  account_id: string
+): Promise<refreshToken[]> {
+  const RETRIEVE_REFRESH_TOKEN_QUERY = `SELECT * FROM tokens WHERE account_id = ${account_id}`;
   return new Promise((resolve, reject) => {
     db_connection.query(
       RETRIEVE_REFRESH_TOKEN_QUERY,
@@ -80,8 +82,8 @@ async function retrieveRefreshToken(user_id: string): Promise<refreshToken[]> {
   });
 }
 
-async function removeRefreshToken(user_id: string) {
-  const DELETE_REFRESH_TOKEN_QUERY = `DELETE FROM tokens WHERE user_id = ${user_id}`;
+async function removeRefreshToken(account_id: string) {
+  const DELETE_REFRESH_TOKEN_QUERY = `DELETE FROM tokens WHERE account_id = ${account_id}`;
   return new Promise((resolve, reject) => {
     db_connection.query(
       DELETE_REFRESH_TOKEN_QUERY,

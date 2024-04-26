@@ -1,7 +1,7 @@
 import { NextResponse, NextRequest } from "next/server";
 
 export async function POST(req: NextRequest) {
-  const { user_id } = await req.json();
+  const { account_id } = await req.json();
   const cookie = req.cookies.get("access_token")?.value;
   if (cookie == undefined)
     return new NextResponse("Not Authorized!", { status: 401 });
@@ -15,7 +15,7 @@ export async function POST(req: NextRequest) {
           "Content-Type": "application/json",
           Cookie: "access_token=" + cookie,
         },
-        body: JSON.stringify({ user_id: user_id }),
+        body: JSON.stringify({ account_id: account_id }),
         cache: "no-cache",
       }
     )

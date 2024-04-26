@@ -21,12 +21,12 @@ export default async function tokenMiddleware(
       );
       next();
     } catch (err) {
-      const user = jwt.decode(token) as JwtPayload;
-      const user_id = user?.user_id;
+      const account = jwt.decode(token) as JwtPayload;
+      const account_id = account?.account_id;
 
       // if access_token expired, check for refresh_token
       if (err instanceof jwt.TokenExpiredError) {
-        const refreshToken = await retrieveRefreshToken(user_id);
+        const refreshToken = await retrieveRefreshToken(account_id);
         if (refreshToken.length === 0 || refreshToken[0].token === undefined) {
           return res.status(401).json({ message: "Invalid Token" });
         }
@@ -38,7 +38,7 @@ export default async function tokenMiddleware(
           ); // verify refresh token
 
           const accessToken = jwt.sign(
-            { user_id: user_id, role: user?.role },
+            { account_id: account_id, role: account?.role },
             process.env.ACCESS_TOKEN_SECRET ?? "access_token_secret",
             { expiresIn: "30m" }
           );
@@ -46,7 +46,7 @@ export default async function tokenMiddleware(
           next();
         } catch (err) {
           // session expired, remove refresh token from db
-          await removeRefreshToken(user_id);
+          await removeRefreshToken(account_id);
           return res
             .status(403)
             .json({ message: "Session Timeout! Please Login Again!" });

@@ -33,14 +33,16 @@ export default function useAuth() {
       })
       .then((res) => {
         if (res.message === "Authorized!") {
-          localStorage.setItem("user", res.user);
+          localStorage.setItem("account", res.account);
           router.push(DASHBOARD_PAGE_URL);
         }
       });
   }
 
   async function logout() {
-    const user_id = JSON.parse(localStorage.getItem("user") ?? "{}").user_id;
+    const account_id = JSON.parse(
+      localStorage.getItem("account") ?? "{}"
+    ).account_id;
 
     await fetch("/api/auth/logout", {
       method: "POST",
@@ -48,31 +50,35 @@ export default function useAuth() {
         "Content-Type": "application/json",
       },
       cache: "no-cache",
-      body: JSON.stringify({ user_id }),
+      body: JSON.stringify({ account_id }),
     }).then((res) => {
       if (res.status === 200) {
-        localStorage.removeItem("user");
+        localStorage.removeItem("account");
         router.push(LOGIN_PAGE_URL);
       }
     });
   }
 
   async function isAuthenticated(): Promise<boolean> {
-    return await fetch("api/auth/authorized", {
+    return await fetch("api/auth/status", {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
       },
       cache: "no-cache",
       credentials: "include",
-    }).then((res) => {
-      return res.status === 200;
-    });
+    })
+      .then((res) => {
+        return res.json();
+      })
+      .then((res) => {
+        return res.status == 200;
+      });
   }
 
-  async function getUserRole(): Promise<string> {
-    const user = JSON.parse(localStorage.getItem("user") ?? "{}");
-    return user.role;
+  async function getAccountRole(): Promise<string> {
+    const account = JSON.parse(localStorage.getItem("account") ?? "{}");
+    return account.role;
   }
 
   return {
@@ -80,6 +86,6 @@ export default function useAuth() {
     login,
     logout,
     isAuthenticated,
-    getUserRole,
+    getAccountRole,
   };
 }
