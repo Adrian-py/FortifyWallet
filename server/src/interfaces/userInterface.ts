@@ -1,5 +1,5 @@
 interface userInterface {
-  account_id: string;
+  account_id?: string;
   username: string;
   email: string;
   password: string;

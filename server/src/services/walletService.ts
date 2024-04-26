@@ -37,7 +37,7 @@ async function initializeWallet(): Promise<WalletInterface> {
   return wallet_info;
 }
 
-async function retrieveWalletByaccount_id(
+async function retrieveWalletByAccountId(
   account_id: string
 ): Promise<WalletInterface[]> {
   const WALLET_QUERY = "SELECT * FROM wallets WHERE account_id = " + account_id;
@@ -52,4 +52,4 @@ async function retrieveWalletByaccount_id(
   });
 }
 
-export { initializeWallet, retrieveWalletByaccount_id };
+export { initializeWallet, retrieveWalletByAccountId };

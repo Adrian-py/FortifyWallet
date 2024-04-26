@@ -51,6 +51,8 @@ export default async function tokenMiddleware(
             .status(403)
             .json({ message: "Session Timeout! Please Login Again!" });
         }
+      } else {
+        res.status(401).json({ message: "Invalid Token" });
       }
     }
   } else {

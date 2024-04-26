@@ -18,6 +18,7 @@ const app = express.Router();
 
 app.post("/login", async (req, res) => {
   const { username, password } = req.body;
+  console.log("Login Attempt: login attempt by " + username);
 
   const account = await retrieveAccount(username);
   if (account.length === 0)
@@ -32,8 +33,8 @@ app.post("/login", async (req, res) => {
       .json({ status: 400, message: "Invalid username or password" });
 
   const authorization_code = uuidv4();
-  await deleteAuthorizationCode(account[0].account_id);
-  await saveAuthorizationCode(account[0].account_id, authorization_code);
+  await deleteAuthorizationCode(account[0].account_id ?? "");
+  await saveAuthorizationCode(account[0].account_id ?? "", authorization_code);
 
   return res.status(200).json({ status: 200, authorization_code });
 });

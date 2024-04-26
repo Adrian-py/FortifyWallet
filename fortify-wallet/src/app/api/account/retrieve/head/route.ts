@@ -1,34 +1,35 @@
-import { NextResponse, NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 const BACKEND_URL =
   process.env.NEXT_PUBLIC_BACKEND_URL ?? "http://localhost:5000";
 
-export async function POST(req: NextRequest) {
+export async function GET(req: NextRequest) {
   const cookie = req.cookies.get("access_token")?.value;
   if (cookie == undefined)
     return new NextResponse("Not Authorized!", { status: 401 });
 
   try {
-    return await fetch(BACKEND_URL + "/wallet/retrieve", {
-      method: "POST",
+    return await fetch(BACKEND_URL + "/accounts/retrieve/head", {
+      method: "GET",
       headers: {
         "Content-Type": "application/json",
-        Cookie: "access_token=" + cookie,
+        Cookie: `access_token=${cookie}`,
       },
       cache: "no-cache",
     })
       .then((res) => {
-        if (res.status !== 200) {
-          throw new Error(
-            "Error: Something wen't wrong when trying to retrieve your wallets"
-          );
+        if (res.status == 401) {
+          throw new Error("Not Authorized!");
         }
         return res.json();
       })
       .then((res) => {
-        return new NextResponse(JSON.stringify(res), { status: 200 });
+        return new NextResponse(JSON.stringify(res), {
+          status: 200,
+        });
       });
   } catch (err: any) {
+    console.log(err);
     return new NextResponse(err.message, { status: 500 });
   }
 }

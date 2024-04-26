@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 
+const BACKEND_URL =
+  process.env.NEXT_PUBLIC_BACKEND_URL ?? "http://localhost:5000";
+
 export async function POST(req: NextRequest) {
   const { username, password } = await req.json();
   let account_info: any = {
@@ -10,7 +13,7 @@ export async function POST(req: NextRequest) {
   };
 
   try {
-    await fetch(process.env.NEXT_PUBLIC_BACKEND_URL + "/auth/login", {
+    await fetch(BACKEND_URL + "/auth/login", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

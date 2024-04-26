@@ -4,10 +4,7 @@ import { useEffect } from "react";
 
 export default function Dashboard() {
   useEffect(() => {
-    const account_id = JSON.parse(
-      localStorage.getItem("account") ?? "{}"
-    )?.account_id;
-    retrieveWallets(account_id);
+    retrieveWallets();
   }, []);
 
   return (
@@ -17,13 +14,12 @@ export default function Dashboard() {
   );
 }
 
-async function retrieveWallets(account_id: string) {
+async function retrieveWallets() {
   await fetch("/api/wallet/retrieve", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ account_id }),
   })
     .then((res) => {
       return res.json();

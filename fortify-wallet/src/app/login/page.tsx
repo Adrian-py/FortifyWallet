@@ -27,7 +27,7 @@ export default function LoginPage() {
             type="text"
             id="username"
             name="username"
-            className="mb-4 border-b-[2px]"
+            className="mb-4 border-b-[2px] px-[1rem] py-[0.5rem]"
             onChange={(e) => setUsername(e.target.value)}
           />
         </div>
@@ -38,7 +38,7 @@ export default function LoginPage() {
             type="password"
             id="password"
             name="password"
-            className="mb-8 border-b-[2px]"
+            className="mb-8 border-b-[2px] px-[1rem] py-[0.5rem]"
             onChange={(e) => setPassword(e.target.value)}
           />
         </div>

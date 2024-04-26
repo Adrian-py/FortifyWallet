@@ -1,12 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 
+const BACKEND_URL =
+  process.env.NEXT_PUBLIC_BACKEND_URL ?? "http://localhost:5000";
+
 export async function GET(req: NextRequest) {
   const cookie = req.cookies.get("access_token")?.value;
   if (cookie == undefined)
     return new NextResponse("Not Authorized!", { status: 401 });
 
-  return await fetch(process.env.NEXT_PUBLIC_BACKEND_URL + "/auth/status", {
+  return await fetch(BACKEND_URL + "/auth/status", {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
