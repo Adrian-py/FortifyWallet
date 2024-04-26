@@ -1,10 +1,10 @@
-import { Request, Response, NextFunction } from 'express';
-import jwt, { JwtPayload } from 'jsonwebtoken';
+import { Request, Response, NextFunction } from "express";
+import jwt, { JwtPayload } from "jsonwebtoken";
 
 import {
   removeRefreshToken,
   retrieveRefreshToken,
-} from '@services/authService';
+} from "@services/authService";
 
 export default async function tokenMiddleware(
   req: Request,
@@ -17,43 +17,43 @@ export default async function tokenMiddleware(
     try {
       jwt.verify(
         token,
-        process.env.ACCESS_TOKEN_SECRET ?? 'access_token_secret'
+        process.env.ACCESS_TOKEN_SECRET ?? "access_token_secret"
       );
       next();
     } catch (err) {
       const user = jwt.decode(token) as JwtPayload;
-      const userId = user?.userId;
+      const user_id = user?.user_id;
 
       // if access_token expired, check for refresh_token
       if (err instanceof jwt.TokenExpiredError) {
-        const refreshToken = await retrieveRefreshToken(userId);
+        const refreshToken = await retrieveRefreshToken(user_id);
         if (refreshToken.length === 0 || refreshToken[0].token === undefined) {
-          return res.status(401).json({ message: 'Invalid Token' });
+          return res.status(401).json({ message: "Invalid Token" });
         }
 
         try {
           jwt.verify(
             refreshToken[0].token,
-            process.env.REFRESH_TOKEN_SECRET ?? 'refresh_token_secret'
+            process.env.REFRESH_TOKEN_SECRET ?? "refresh_token_secret"
           ); // verify refresh token
 
           const accessToken = jwt.sign(
-            { userId: userId },
-            process.env.ACCESS_TOKEN_SECRET ?? 'access_token_secret',
-            { expiresIn: '30m' }
+            { user_id: user_id, role: user?.role },
+            process.env.ACCESS_TOKEN_SECRET ?? "access_token_secret",
+            { expiresIn: "30m" }
           );
-          res.setHeader('Set-Cookie', accessToken);
+          res.setHeader("Set-Cookie", accessToken);
           next();
         } catch (err) {
           // session expired, remove refresh token from db
-          await removeRefreshToken(userId);
+          await removeRefreshToken(user_id);
           return res
             .status(403)
-            .json({ message: 'Session Timeout! Please Login Again!' });
+            .json({ message: "Session Timeout! Please Login Again!" });
         }
       }
     }
   } else {
-    return res.status(401).json({ message: 'Access token missing' });
+    return res.status(401).json({ message: "Access token missing" });
   }
 }

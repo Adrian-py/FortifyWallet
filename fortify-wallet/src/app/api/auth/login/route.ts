@@ -3,9 +3,10 @@ import { cookies } from "next/headers";
 
 export async function POST(req: NextRequest) {
   const { username, password } = await req.json();
-  let user_info = {
+  let user_info: any = {
     username: username,
     user_id: null,
+    role: null,
   };
 
   try {
@@ -24,13 +25,20 @@ export async function POST(req: NextRequest) {
         return res.json();
       })
       .then(async (res) => {
+        // Using the authorization code to get the access token
         const response = await getAccessToken(res.authorization_code);
         cookies().set("access_token", response.access_token);
         user_info.user_id = response.user.user_id;
+        user_info.role = response.user.role;
       });
 
+    // Encrypt user data before sending it back to the client
+
     return new NextResponse(
-      JSON.stringify({ message: "Authorized!", user: user_info }),
+      JSON.stringify({
+        message: "Authorized!",
+        user: JSON.stringify(user_info),
+      }),
       {
         status: 200,
       }

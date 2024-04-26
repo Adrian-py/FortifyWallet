@@ -5,9 +5,10 @@ import "dotenv/config";
 import cookieParser from "cookie-parser";
 import path from "path";
 
-import wallet from "@routes/wallet";
 import auth from "@routes/auth";
 import company from "@routes/company";
+import wallet from "@routes/wallet";
+import user from "@routes/user";
 import { connectToDatabase } from "@db/init";
 
 const app = express();
@@ -23,6 +24,7 @@ app.use(express.static(path.join(__dirname, "../public/")));
 app.use("/company", company);
 app.use("/auth", auth);
 app.use("/wallet", wallet);
+app.use("/users", user);
 
 // Initiate Server and Database
 connectToDatabase()

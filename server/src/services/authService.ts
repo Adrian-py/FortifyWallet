@@ -1,7 +1,6 @@
-import { MysqlError } from 'mysql';
+import { MysqlError } from "mysql";
 
-import { db_connection } from '@db/init';
-import userInterface from '@interfaces/userInterface';
+import { db_connection } from "@db/init";
 
 interface authorizationToken {
   token_id: number;
@@ -94,21 +93,6 @@ async function removeRefreshToken(user_id: string) {
   });
 }
 
-async function retrieveUser(username: string): Promise<userInterface[]> {
-  const RETRIEVE_USER_QUERY = `SELECT * FROM users WHERE username = '${username}'`;
-  return new Promise((resolve, reject) => {
-    db_connection.query(
-      RETRIEVE_USER_QUERY,
-      (err: Error, result: userInterface[]) => {
-        if (err) {
-          reject(err);
-        }
-        resolve(result);
-      }
-    );
-  });
-}
-
 export {
   saveAuthorizationCode,
   retrieveAuthorizationCode,
@@ -116,5 +100,4 @@ export {
   saveRefreshToken,
   retrieveRefreshToken,
   removeRefreshToken,
-  retrieveUser,
 };

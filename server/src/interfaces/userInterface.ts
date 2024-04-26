@@ -4,6 +4,7 @@ interface userInterface {
   email: string;
   password: string;
   role_id: Number;
+  reports_to: Number;
 }
 
 export default userInterface;

@@ -1,9 +1,10 @@
 "use client";
 
-import useAuth from '@/hooks/useAuth';
 import { useState } from "react";
 
-export default function Home() {
+import useAuth from "@/hooks/useAuth";
+
+export default function LoginPage() {
   const { login } = useAuth();
   const [username, setUsername] = useState<string>("");
   const [password, setPassword] = useState<string>("");

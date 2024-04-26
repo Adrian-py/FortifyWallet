@@ -8,7 +8,11 @@ export default function Dashboard() {
     retrieveWallets(user_id);
   }, []);
 
-  return <>Dashboard</>;
+  return (
+    <div className="">
+      <h2 className="text-3xl font-bold">Dashboard</h2>
+    </div>
+  );
 }
 
 async function retrieveWallets(user_id: string) {
@@ -23,7 +27,6 @@ async function retrieveWallets(user_id: string) {
       return res.json();
     })
     .then((data) => {
-      console.log(data);
       return data;
     });
 }

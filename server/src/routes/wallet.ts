@@ -2,7 +2,7 @@ import express from "express";
 
 import {
   initializeWallet,
-  retrieveWalletByUserId,
+  retrieveWalletByuser_id,
 } from "@services/walletService";
 import tokenMiddleware from "@middleware/tokenMiddleware";
 import { hasPrivilegeToCreate } from "@services/userService";
@@ -15,7 +15,7 @@ app.post("/retrieve", async (req, res) => {
   try {
     const { user_id } = req.body;
 
-    const wallet = await retrieveWalletByUserId(user_id);
+    const wallet = await retrieveWalletByuser_id(user_id);
 
     return res.status(200).json({ wallet });
   } catch (err) {
@@ -33,7 +33,7 @@ app.get("/create", async (req, res) => {
   // check if user has privilege to create a wallet
   const has_privilege = await hasPrivilegeToCreate(user_id);
   if (!has_privilege) {
-    return res.status(401).json({ message: "Unauthorized" });
+    return res.status(401).json({ message: "Not Authorized" });
   }
 
   const wallet = await initializeWallet();
