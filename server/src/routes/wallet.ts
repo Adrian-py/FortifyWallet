@@ -6,7 +6,7 @@ import {
   retrieveWalletByAccountId,
 } from "@services/walletService";
 import tokenMiddleware from "@middleware/tokenMiddleware";
-import { hasPrivilegeToCreate } from "@services/userService";
+import { hasPrivilegeToCreate } from "@services/accountService";
 
 const app = express.Router();
 

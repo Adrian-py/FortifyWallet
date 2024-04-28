@@ -12,7 +12,7 @@ import {
   saveRefreshToken,
 } from "@services/authService";
 import tokenMiddleware from "@middleware/tokenMiddleware";
-import { retrieveAccount, getAccountRole } from "@services/userService";
+import { retrieveAccount, getAccountRole } from "@services/accountService";
 
 const app = express.Router();
 

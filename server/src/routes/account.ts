@@ -8,7 +8,7 @@ import {
   retrieveHeadDepartmentAccounts,
   retrieveAccountsBelow,
   createAccount,
-} from "@services/userService";
+} from "@services/accountService";
 import { retrieveRoleId } from "@services/roleService";
 
 const app = express.Router();
@@ -44,6 +44,7 @@ app.get("/retrieve/head", async (_req, res) => {
 app.post("/create", async (req, res) => {
   const access_token = req.cookies.access_token;
   const account = jwt.decode(access_token) as JwtPayload;
+
   try {
     const new_account = {
       username: req.body.new_account.username,

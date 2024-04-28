@@ -12,7 +12,7 @@ export default function CreateUserPage() {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState("-");
+  const [role, setRole] = useState("member");
   const [reportingTo, setReportingTo] = useState<number | null>(
     account.role === "head" ? account.account_id : null
   ); // contains Head of Department id, if role is member
@@ -124,13 +124,13 @@ export default function CreateUserPage() {
               <option value="member">Member</option>
               <option value="head">Head of Department</option>
             </select>
-            {role === "member" && (
+            {role === "member" && account.role === "admin" && (
               <>
                 <label htmlFor="reports_to" className="mb-[0.5rem] font-bold">
                   Reports To
                 </label>
                 <select onChange={handleReportingToChange} name="reports_to">
-                  <option value="-1">-</option>
+                  <option value="-">-</option>
                   {departmentHeads.map((head) => {
                     return (
                       <option key={head.id} value={head.id}>

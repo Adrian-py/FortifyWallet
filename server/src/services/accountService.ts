@@ -43,11 +43,14 @@ async function getAccountRole(account_id: string): Promise<string> {
 async function retrieveAccountsBelow(
   account_id: string
 ): Promise<userInterface[]> {
-  let RETRIEVE_USERS_BELOW_QUERY = `SELECT account_id, username, email FROM accounts WHERE reports_to = ${account_id}`;
+  let RETRIEVE_USERS_BELOW_QUERY = `SELECT accounts.account_id, accounts.username, accounts.email, roles.role_name 
+                                   FROM accounts 
+                                   INNER JOIN roles ON accounts.role_id = roles.role_id 
+                                   WHERE accounts.reports_to = ${account_id}`;
 
   const user_role = await getAccountRole(account_id);
   if (user_role == "admin") {
-    RETRIEVE_USERS_BELOW_QUERY = `SELECT account_id, username, email FROM accounts`; // Retrieve all accounts if account is an admin, and only accounts below if account is a head
+    RETRIEVE_USERS_BELOW_QUERY = `SELECT accounts.account_id, accounts.username, accounts.email, roles.role_name FROM accounts INNER JOIN roles ON accounts.role_id = roles.role_id`; // Retrieve all accounts if account is an admin, and only accounts below if account is a head
   }
 
   return new Promise((resolve, reject) => {

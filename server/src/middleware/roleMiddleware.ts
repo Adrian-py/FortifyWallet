@@ -1,4 +1,4 @@
-import { getAccountRole } from "@services/userService";
+import { getAccountRole } from "@services/accountService";
 import { Request, Response, NextFunction } from "express";
 import jwt, { JwtPayload } from "jsonwebtoken";
 

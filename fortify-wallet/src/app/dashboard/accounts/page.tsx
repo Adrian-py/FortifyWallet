@@ -9,6 +9,7 @@ interface UserInterface {
   account_id: string;
   username: string;
   email: string;
+  role_name: string;
 }
 
 export default function UsersPage() {
@@ -28,6 +29,7 @@ export default function UsersPage() {
           return res.json();
         })
         .then((res) => {
+          console.log(res);
           setUsers(res.accounts);
         });
     };
@@ -61,21 +63,19 @@ export default function UsersPage() {
       <table className="text-left">
         <thead className="font-bold">
           <tr>
-            <th className="px-2 py-1">No</th>
-            <th className="px-2 py-1">Username</th>
-            <th className="px-2 py-1">Email</th>
+            <th className="w-[5vw] max-w-[4rem] px-2 py-1">No</th>
+            <th className="w-[25vw] max-w-[30rem] px-2 py-1">Username</th>
+            <th className="w-[25vw] max-w-[30rem] px-2 py-1">Email</th>
+            <th className="w-[10vw] max-w-[8rem] px-2 py-1">Role</th>
           </tr>
         </thead>
         <tbody className="text-sm">
           {accounts.map((account, ind) => (
             <tr key={account.account_id} className="px-[1rem] py-2">
-              <td className="w-[5vw] max-w-[4rem] y-2 px-2">{ind + 1}</td>
-              <td className="w-[30vw] max-w-[40rem]py-2 px-2">
-                {account.username}
-              </td>
-              <td className="w-[25vw] max-w-[40rem] py-2 px-2">
-                {account.email}
-              </td>
+              <td className="y-2 px-2">{ind + 1}</td>
+              <td className="py-2 px-2">{account.username}</td>
+              <td className="py-2 px-2">{account.email}</td>
+              <td className="py-2 px-2">{account.role_name}</td>
             </tr>
           ))}
         </tbody>
