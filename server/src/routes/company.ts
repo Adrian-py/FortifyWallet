@@ -7,6 +7,7 @@ import {
   verifyCompanyInfo,
 } from "@services/onboardingService";
 import { seedDatabase } from "@db/init";
+import { initializeWallet } from "@services/walletService";
 
 const app = express.Router();
 
@@ -20,6 +21,7 @@ app.post("/onboarding", async (req, res) => {
     company_name: req.body.company_name,
     company_email: req.body.company_email,
     company_desc: req.body.company_desc,
+    master_key: (await initializeWallet()).priv_key,
   };
 
   try {
