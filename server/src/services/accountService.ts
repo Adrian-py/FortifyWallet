@@ -1,10 +1,11 @@
 import { MysqlError } from "mysql";
 
 import { db_connection } from "@db/init";
-import userInterface from "@interfaces/userInterface";
+import userInterface from "@interfaces/accountInterface";
+import departmentInterface from "@interfaces/departmentInterface";
 
 async function createAccount(new_account: userInterface) {
-  const CREATE_ACCOUNT_QUERY = `INSERT INTO accounts (username, email, password, role_id, reports_to) VALUES ('${new_account.username}', '${new_account.email}', '${new_account.password}', ${new_account.role_id}, ${new_account.reports_to})`;
+  const CREATE_ACCOUNT_QUERY = `INSERT INTO accounts (username, email, password, role_id, department_id) VALUES ('${new_account.username}', '${new_account.email}', '${new_account.password}', ${new_account.role_id}, ${new_account.department_id})`;
   return new Promise((resolve, reject) => {
     db_connection.query(CREATE_ACCOUNT_QUERY, (err: MysqlError, res: any) => {
       if (err) {
@@ -15,8 +16,23 @@ async function createAccount(new_account: userInterface) {
   });
 }
 
+async function retrieveAllAccounts(): Promise<userInterface[]> {
+  const RETRIEVE_ALL_ACCOUNTS_QUERY = `SELECT account_id, username, email, roles.role_name, departments.department_name FROM accounts INNER JOIN roles ON accounts.role_id = roles.role_id INNER JOIN departments ON accounts.department_id = departments.department_id`;
+  return new Promise((resolve, reject) => {
+    db_connection.query(
+      RETRIEVE_ALL_ACCOUNTS_QUERY,
+      (err: MysqlError, res: userInterface[]) => {
+        if (err) {
+          reject(err);
+        }
+        resolve(res);
+      }
+    );
+  });
+}
+
 async function retrieveAccount(username: string): Promise<userInterface[]> {
-  const RETRIEVE_USER_QUERY = `SELECT * FROM accounts WHERE username = '${username}'`;
+  const RETRIEVE_USER_QUERY = `SELECT account_id, username, password FROM accounts WHERE username = '${username}'`;
   return new Promise((resolve, reject) => {
     db_connection.query(
       RETRIEVE_USER_QUERY,
@@ -30,6 +46,18 @@ async function retrieveAccount(username: string): Promise<userInterface[]> {
   });
 }
 
+async function getAccountDepartment(
+  account_id: string
+): Promise<departmentInterface> {
+  const DEPARTMENT_QUERY = `SELECT department_name, department_id FROM departments WHERE department_id = (SELECT department_id FROM accounts WHERE account_id = ${account_id})`;
+  return new Promise((resolve, reject) => {
+    db_connection.query(DEPARTMENT_QUERY, (err: MysqlError, res: any) => {
+      if (err) reject(err);
+      resolve(res[0]);
+    });
+  });
+}
+
 async function getAccountRole(account_id: string): Promise<string> {
   const PRIVILIGE_QUERY = `SELECT role_name FROM roles WHERE role_id = (SELECT role_id FROM accounts WHERE account_id = ${account_id})`;
   return new Promise((resolve, reject) => {
@@ -40,37 +68,13 @@ async function getAccountRole(account_id: string): Promise<string> {
   });
 }
 
-async function retrieveAccountsBelow(
-  account_id: string
+async function retrieveDepartmentMembers(
+  department_id: Number
 ): Promise<userInterface[]> {
-  let RETRIEVE_USERS_BELOW_QUERY = `SELECT accounts.account_id, accounts.username, accounts.email, roles.role_name 
-                                   FROM accounts 
-                                   INNER JOIN roles ON accounts.role_id = roles.role_id 
-                                   WHERE accounts.reports_to = ${account_id}`;
-
-  const user_role = await getAccountRole(account_id);
-  if (user_role == "admin") {
-    RETRIEVE_USERS_BELOW_QUERY = `SELECT accounts.account_id, accounts.username, accounts.email, roles.role_name FROM accounts INNER JOIN roles ON accounts.role_id = roles.role_id`; // Retrieve all accounts if account is an admin, and only accounts below if account is a head
-  }
-
+  const RETRIEVE_DEPARTMENT_MEMBERS_QUERY = `SELECT account_id, username, email, roles.role_name, departments.department_name FROM accounts INNER JOIN roles ON roles.role_id = accounts.role_id INNER JOIN departments ON accounts.department_id = departments.department_id WHERE accounts.department_id = ${department_id}`;
   return new Promise((resolve, reject) => {
     db_connection.query(
-      RETRIEVE_USERS_BELOW_QUERY,
-      (err: MysqlError, result: userInterface[]) => {
-        if (err) {
-          reject(err);
-        }
-        resolve(result);
-      }
-    );
-  });
-}
-
-async function retrieveHeadDepartmentAccounts(): Promise<userInterface[]> {
-  const RETRIEVE_HEAD_DEPARTMENT_ACCOUNTS_QUERY = `SELECT account_id, username FROM accounts WHERE role_id = 2`;
-  return new Promise((resolve, reject) => {
-    db_connection.query(
-      RETRIEVE_HEAD_DEPARTMENT_ACCOUNTS_QUERY,
+      RETRIEVE_DEPARTMENT_MEMBERS_QUERY,
       (err: MysqlError, res: userInterface[]) => {
         if (err) {
           reject(err);
@@ -104,9 +108,10 @@ async function hasPrivilegeToDerive(account_id: string): Promise<boolean> {
 export {
   createAccount,
   retrieveAccount,
+  retrieveAllAccounts,
+  getAccountDepartment,
   getAccountRole,
-  retrieveHeadDepartmentAccounts,
-  retrieveAccountsBelow,
+  retrieveDepartmentMembers,
   hasPrivilegeToCreate,
   hasPrivilegeToDerive,
 };

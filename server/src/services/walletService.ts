@@ -9,8 +9,9 @@ import crypto from "crypto";
 
 import { db_connection } from "@db/init";
 import WalletInterface from "@interfaces/walletInterface";
+import { getAccountDepartment } from "./accountService";
 
-// const ECPair = ECPairFactory(ecc);
+const ECPair = ECPairFactory(ecc);
 const kms = new KMSClient({
   region: "ap-southeast-2",
   credentials: {
@@ -46,7 +47,6 @@ async function decryptKey(cipherText: string): Promise<string> {
 
   if (!kmsKeyId)
     throw new Error("KMS Key ID not found in environment variables");
-
   const command = new DecryptCommand({
     KeyId: kmsKeyId,
     CiphertextBlob: Uint8Array.from(atob(cipherText), (v) => v.charCodeAt(0)),
@@ -76,12 +76,94 @@ async function initializeWallet(): Promise<string> {
   }
 }
 
+async function deriveWallet(account_id: string) {
+  try {
+    const encrypted_key = await retrieveMasterKey();
+    const priv_key = await decryptKey(encrypted_key);
+
+    const { department_id } = await getAccountDepartment(account_id);
+    const address_index = await retrieveNumberOfWalletsInDepartment(
+      department_id
+    );
+
+    const key_pair = ECPair.fromWIF(priv_key, network);
+    const root = bip32.fromPrivateKey(
+      Buffer.from(key_pair.privateKey?.toString("hex") ?? "", "hex"),
+      Buffer.alloc(32),
+      network
+    );
+
+    const derivation_path = `m/44'/0'/${department_id}'/0/${address_index}`;
+    const derived_child = root.derivePath(derivation_path);
+    const address = getAddress(derived_child);
+    const pub_key = derived_child.publicKey.toString("hex");
+
+    const WALLET_QUERY = `INSERT INTO wallets (address, account_id, department_id, pub_key, derivation_path) VALUES ("${address}", ${account_id}, ${department_id}, "${pub_key}", "${derivation_path}")`;
+    return new Promise((resolve, reject) => {
+      db_connection.query(WALLET_QUERY, (err: MysqlError) => {
+        if (err) reject(err);
+        resolve({ address, owned_by: account_id, role: "user" });
+      });
+    });
+  } catch (err) {
+    throw new Error("Error: Failed to derive wallet");
+  }
+}
+
+async function retrieveNumberOfWalletsInDepartment(
+  department_id: Number
+): Promise<number> {
+  const WALLET_QUERY = `SELECT COUNT(*) AS address_index FROM wallets WHERE department_id = ${department_id}`;
+  return new Promise((resolve, reject) => {
+    db_connection.query(WALLET_QUERY, (err: MysqlError, res: any) => {
+      if (err) reject(err);
+      resolve(res[0].address_index);
+    });
+  });
+}
+
+async function retrieveMasterKey(): Promise<string> {
+  try {
+    const MASTER_KEY_QUERY = `SELECT master_key FROM company WHERE company_id = 1`;
+    return new Promise((resolve, reject) => {
+      {
+        db_connection.query(MASTER_KEY_QUERY, (err: MysqlError, res: any) => {
+          if (err) reject(err);
+          resolve(res[0].master_key);
+        });
+      }
+    });
+  } catch (err) {
+    console.error(err);
+    throw new Error("Error: Failed to retrieve master key");
+  }
+}
+
 async function retrieveAllWallets(): Promise<WalletInterface[]> {
   const WALLET_QUERY = `
-    SELECT wallets.address, accounts.username AS owned_by, roles.role_name AS role
-    FROM wallets
+    SELECT wallets.address, accounts.username AS owned_by, departments.department_name as department FROM wallets
     INNER JOIN accounts ON wallets.account_id = accounts.account_id
-    INNER JOIN roles ON accounts.role_id = roles.role_id
+    INNER JOIN departments ON wallets.department_id = departments.department_id
+  `;
+  return new Promise((resolve, reject) => {
+    db_connection.query(
+      WALLET_QUERY,
+      (err: MysqlError, res: WalletInterface[]) => {
+        if (err) reject(err);
+        resolve(res);
+      }
+    );
+  });
+}
+
+async function retrieveAllDepartmentWallets(
+  department_id: Number
+): Promise<WalletInterface[]> {
+  const WALLET_QUERY = `
+    SELECT wallets.address, accounts.username AS owned_by, departments.department_name as department FROM wallets
+    INNER JOIN accounts ON wallets.account_id = accounts.account_id
+    INNER JOIN departments ON wallets.department_id = departments.department_id
+    WHERE wallets.department_id = ${department_id}
   `;
   return new Promise((resolve, reject) => {
     db_connection.query(
@@ -98,9 +180,9 @@ async function retrieveWalletByAccountId(
   account_id: string
 ): Promise<WalletInterface[]> {
   const WALLET_QUERY = `
-    SELECT wallets.address, accounts.username AS owned_by, roles.role_name AS role FROM wallets 
+    SELECT wallets.address, accounts.username AS owned_by, departments.department_name AS department FROM wallets 
     INNER JOIN accounts ON wallets.account_id = accounts.account_id 
-    INNER JOIN roles ON accounts.role_id = roles.role_id
+    INNER JOIN departments ON wallets.department_id = departments.department_id
     WHERE wallets.account_id = ${account_id}`;
   return new Promise((resolve, reject) => {
     db_connection.query(
@@ -113,4 +195,10 @@ async function retrieveWalletByAccountId(
   });
 }
 
-export { initializeWallet, retrieveAllWallets, retrieveWalletByAccountId };
+export {
+  initializeWallet,
+  deriveWallet,
+  retrieveAllDepartmentWallets,
+  retrieveAllWallets,
+  retrieveWalletByAccountId,
+};

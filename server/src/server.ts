@@ -9,6 +9,7 @@ import auth from "@routes/auth";
 import company from "@routes/company";
 import wallet from "@routes/wallet";
 import account from "@routes/account";
+import department from "@routes/department";
 import { connectToDatabase } from "@db/init";
 
 const app = express();
@@ -25,6 +26,7 @@ app.use("/company", company);
 app.use("/auth", auth);
 app.use("/wallet", wallet);
 app.use("/accounts", account);
+app.use("/departments", department);
 
 // Initiate Server and Database
 connectToDatabase()

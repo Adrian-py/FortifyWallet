@@ -23,8 +23,9 @@ async function initializeDatabase() {
   const INIT_TABLE_QUERY = [
     "CREATE TABLE IF NOT EXISTS company (company_id int AUTO_INCREMENT, company_name varchar(20), company_email varchar(20), company_desc TEXT, master_key varchar(300), PRIMARY KEY(company_id))",
     "CREATE TABLE IF NOT EXISTS roles (role_id int AUTO_INCREMENT, role_name varchar(20), role_desc TEXT, PRIMARY KEY(role_id))",
-    "CREATE TABLE IF NOT EXISTS accounts (account_id int AUTO_INCREMENT, username varchar(20) UNIQUE, email varchar(20) UNIQUE, password varchar(100), role_id int, reports_to int, PRIMARY KEY(account_id), FOREIGN KEY(role_id) REFERENCES roles(role_id), FOREIGN KEY(reports_to) REFERENCES accounts(account_id))",
-    "CREATE TABLE IF NOT EXISTS wallets (wallet_id int AUTO_INCREMENT, account_id int, pubkey varchar(100), address varchar(100), derivation_path varchar(20), PRIMARY KEY(wallet_id), FOREIGN KEY(account_id) REFERENCES accounts(account_id))",
+    "CREATE TABLE IF NOT EXISTS departments (department_id int AUTO_INCREMENT, department_name varchar(20), department_desc TEXT, PRIMARY KEY(department_id))",
+    "CREATE TABLE IF NOT EXISTS accounts (account_id int AUTO_INCREMENT, username varchar(20) UNIQUE, email varchar(20) UNIQUE, password varchar(100), role_id int, department_id int, PRIMARY KEY(account_id), FOREIGN KEY(role_id) REFERENCES roles(role_id), FOREIGN KEY(department_id) REFERENCES departments(department_id))",
+    "CREATE TABLE IF NOT EXISTS wallets (wallet_id int AUTO_INCREMENT, account_id int, department_id int, pub_key varchar(100), address varchar(100), derivation_path varchar(20), PRIMARY KEY(wallet_id), FOREIGN KEY(account_id) REFERENCES accounts(account_id), FOREIGN KEY(department_id) REFERENCES departments(department_id))",
     "CREATE TABLE IF NOT EXISTS tokens (token_id int AUTO_INCREMENT, account_id int UNIQUE, token varchar(200) UNIQUE, PRIMARY KEY(token_id), FOREIGN KEY(account_id) REFERENCES accounts(account_id))",
     "CREATE TABLE IF NOT EXISTS authorization_codes (auth_id int AUTO_INCREMENT, account_id int UNIQUE, authorization_code varchar(100) UNIQUE, PRIMARY KEY(auth_id), FOREIGN KEY(account_id) REFERENCES accounts(account_id))",
   ];

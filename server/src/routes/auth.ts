@@ -26,7 +26,10 @@ app.post("/login", async (req, res) => {
       .status(400)
       .json({ status: 400, message: "Invalid username or password" });
 
-  const match_password = await bcrypt.compare(password, account[0].password);
+  const match_password = await bcrypt.compare(
+    password,
+    account[0].password ?? ""
+  );
   if (!match_password)
     return res
       .status(400)

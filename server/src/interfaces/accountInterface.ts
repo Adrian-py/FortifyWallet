@@ -2,9 +2,9 @@ interface userInterface {
   account_id?: string;
   username: string;
   email: string;
-  password: string;
+  password?: string;
   role_id: Number;
-  reports_to: Number;
+  department_id?: Number;
 }
 
 export default userInterface;
