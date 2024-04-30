@@ -4,21 +4,24 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ACCOUNTS_PAGE_URL } from "@/constants/constants";
 
+interface DepartmentInterface {
+  department_id: number;
+  department_name: string;
+}
+
 export default function CreateUserPage() {
   const router = useRouter();
   const account = JSON.parse(localStorage.getItem("account") ?? "{}");
 
-  const [departmentHeads, setDepartmentHeads] = useState<any[]>([]); // contains all department heads [id, name
+  const [departments, setDepartments] = useState<DepartmentInterface[]>([]);
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [role, setRole] = useState("member");
-  const [reportingTo, setReportingTo] = useState<number | null>(
-    account.role === "head" ? account.account_id : null
-  ); // contains Head of Department id, if role is member
+  const [departmentId, setDepartmentId] = useState<Number | null>(null);
 
   useEffect(() => {
-    handleRetrieveHead();
+    handleRetrieveDepartments();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -30,13 +33,8 @@ export default function CreateUserPage() {
       email,
       password,
       role,
-      reportingTo,
+      department_id: departmentId,
     };
-    if (reportingTo === null && role === "member") {
-      return alert(
-        "Please select a head of department for member to report to!"
-      );
-    }
 
     await fetch("/api/account/create", {
       method: "POST",
@@ -45,26 +43,28 @@ export default function CreateUserPage() {
       },
       body: JSON.stringify({ new_account: newAccount }),
     })
-      .then((res) => {
+      .then(async (res) => {
         if (res.status == 200) {
           alert("Account created!");
           router.push(ACCOUNTS_PAGE_URL);
         } else {
-          alert("Error: Something went wrong when creating account");
+          const error_message = await res.json();
+          alert(error_message);
         }
       })
       .catch((error) => {
         console.error(error);
       });
   };
-  const handleRetrieveHead = async () => {
+
+  const handleRetrieveDepartments = async () => {
     if (account.role === "admin") {
-      await fetch("/api/account/retrieve/head/")
+      await fetch("/api/departments/retrieve/")
         .then((res) => {
           return res.json();
         })
         .then((res) => {
-          setDepartmentHeads(res.heads);
+          setDepartments(res.departments);
         })
         .catch((error) => {
           console.error(error);
@@ -76,8 +76,8 @@ export default function CreateUserPage() {
     setRole(e.target.value);
   };
 
-  const handleReportingToChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setReportingTo(parseInt(e.target.value));
+  const handleDepartmentChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setDepartmentId(parseInt(e.target.value));
   };
 
   return (
@@ -114,33 +114,38 @@ export default function CreateUserPage() {
           className="mb-8 border-b-[1px] px-[1rem] py-[0.5rem]"
           onChange={(e) => setPassword(e.target.value)}
         />
+
         {account.role === "admin" && (
           <>
             <label htmlFor="role" className="mb-[0.5rem] font-bold">
               Role
             </label>
-            <select onChange={handleRoleChange} className="mb-8" name="role">
+            <select
+              onChange={handleRoleChange}
+              name="role"
+              className="mb-8 px-[0.5rem] py-[0.4rem] w-[50%] border-[2px] border-gray-400 rounded-md"
+            >
               <option value="-">-</option>
               <option value="member">Member</option>
               <option value="head">Head of Department</option>
             </select>
-            {role === "member" && account.role === "admin" && (
-              <>
-                <label htmlFor="reports_to" className="mb-[0.5rem] font-bold">
-                  Reports To
-                </label>
-                <select onChange={handleReportingToChange} name="reports_to">
-                  <option value="-">-</option>
-                  {departmentHeads.map((head) => {
-                    return (
-                      <option key={head.id} value={head.id}>
-                        {head.username}
-                      </option>
-                    );
-                  })}
-                </select>
-              </>
-            )}
+            <label htmlFor="department" className="mb-[0.5rem] font-bold">
+              Department
+            </label>
+            <select
+              onChange={handleDepartmentChange}
+              name="department"
+              className="px-[0.5rem] py-[0.4rem] w-[50%] border-[2px] border-gray-400 rounded-md"
+            >
+              <option value="-">-</option>
+              {departments.map((dept) => {
+                return (
+                  <option key={dept.department_id} value={dept.department_id}>
+                    {dept.department_name}
+                  </option>
+                );
+              })}
+            </select>
           </>
         )}
 

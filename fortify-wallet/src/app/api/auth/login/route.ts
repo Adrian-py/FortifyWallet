@@ -47,6 +47,7 @@ export async function POST(req: NextRequest) {
       }
     );
   } catch (err) {
+    console.log(err);
     return new NextResponse(
       "Error: Something wen't wrong whilst trying to log you in",
       { status: 500 }

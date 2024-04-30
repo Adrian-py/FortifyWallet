@@ -10,11 +10,12 @@ interface AccountInterface {
   username: string;
   email: string;
   role_name: string;
+  department_name: string;
 }
 
 export default function UsersPage() {
   const router = useRouter();
-  const [accounts, setUsers] = useState<AccountInterface[]>([]);
+  const [accounts, setAccounts] = useState<AccountInterface[]>([]);
 
   useEffect(() => {
     const retrieveAccounts = async () => {
@@ -29,7 +30,7 @@ export default function UsersPage() {
           return res.json();
         })
         .then((res) => {
-          setUsers(res.accounts);
+          setAccounts(res.accounts);
         });
     };
     retrieveAccounts();
@@ -62,19 +63,31 @@ export default function UsersPage() {
       <table className="text-left">
         <thead className="font-bold">
           <tr>
-            <th className="w-[5vw] max-w-[4rem] px-2 py-1">No</th>
-            <th className="w-[25vw] max-w-[30rem] px-2 py-1">Username</th>
-            <th className="w-[25vw] max-w-[30rem] px-2 py-1">Email</th>
-            <th className="w-[10vw] max-w-[8rem] px-2 py-1">Role</th>
+            <th className="w-[6rem] max-w-[8vw] px-2 py-1">No</th>
+            <th className="w-[30rem] max-w-[25vw] px-2 py-1">Username</th>
+            <th className="w-[30rem] max-w-[25vw] px-2 py-1">Email</th>
+            <th className="w-[15rem] max-w-[10vw] px-2 py-1">Role</th>
+            <th className="w-[15rem] max-w-[25vw] px-2 py-1">Department</th>
           </tr>
         </thead>
         <tbody className="text-sm">
           {accounts.map((account, ind) => (
-            <tr key={account.account_id} className="px-[1rem] py-2">
-              <td className="y-2 px-2">{ind + 1}</td>
-              <td className="py-2 px-2">{account.username}</td>
-              <td className="py-2 px-2">{account.email}</td>
-              <td className="py-2 px-2">{account.role_name}</td>
+            <tr key={ind} className="px-[1rem] py-2">
+              <td className="w-[4rem] max-w-[5vw] y-2 px-2 overflow-hidden text-ellipsis">
+                {ind + 1}
+              </td>
+              <td className="w-[30rem] max-w-[25vw] py-2 px-2 overflow-hidden text-ellipsis">
+                {account.username}
+              </td>
+              <td className="w-[30rem] max-w-[25vw] py-2 px-2 overflow-hidden text-ellipsis">
+                {account.email}
+              </td>
+              <td className="w-[15rem] max-w-[10vw] py-2 px-2 overflow-hidden text-ellipsis">
+                {account.role_name}
+              </td>
+              <td className="w-[15rem] max-w-[25vw] py-2 px-2 overflow-hidden text-ellipsis">
+                {account.department_name}
+              </td>
             </tr>
           ))}
         </tbody>

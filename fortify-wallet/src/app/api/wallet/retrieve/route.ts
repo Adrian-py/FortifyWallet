@@ -18,14 +18,14 @@ export async function POST(req: NextRequest) {
       cache: "no-cache",
     })
       .then((res) => {
+        return res.json();
+      })
+      .then((res) => {
         if (res.status !== 200) {
           throw new Error(
             "Error: Something wen't wrong when trying to retrieve your wallets"
           );
         }
-        return res.json();
-      })
-      .then((res) => {
         return new NextResponse(JSON.stringify(res), { status: 200 });
       });
   } catch (err: any) {
