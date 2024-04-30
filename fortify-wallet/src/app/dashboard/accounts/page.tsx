@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 
 import { CREATE_ACCOUNTS_PAGE_URL } from "@/constants/constants";
 
-interface UserInterface {
+interface AccountInterface {
   account_id: string;
   username: string;
   email: string;
@@ -14,7 +14,7 @@ interface UserInterface {
 
 export default function UsersPage() {
   const router = useRouter();
-  const [accounts, setUsers] = useState<UserInterface[]>([]);
+  const [accounts, setUsers] = useState<AccountInterface[]>([]);
 
   useEffect(() => {
     const retrieveAccounts = async () => {
@@ -29,7 +29,6 @@ export default function UsersPage() {
           return res.json();
         })
         .then((res) => {
-          console.log(res);
           setUsers(res.accounts);
         });
     };
@@ -38,11 +37,11 @@ export default function UsersPage() {
 
   return (
     <div className="">
-      <div className="w-full flex justify-between items-center">
-        <h2 className="mb-[1rem] text-3xl font-bold">Accounts</h2>
+      <div className="mb-[1rem] w-full flex justify-between items-center">
+        <h2 className="text-3xl font-bold">Accounts</h2>
         <button
           onClick={() => router.push(CREATE_ACCOUNTS_PAGE_URL)}
-          className="w-fit px-[1.25rem] py-[0.5rem] flex gap-[0.5rem] bg-red-400 text-white rounded-md hover:scale-[1.05] transition-all duration-150"
+          className="w-fit px-[1.25rem] py-[0.5rem] flex items-center gap-[0.5rem] bg-red-400 text-white rounded-md hover:scale-[1.05] transition-all duration-150"
         >
           Create Account
           <svg

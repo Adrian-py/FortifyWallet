@@ -1,8 +1,7 @@
 interface WalletInterface {
-  account_id: string;
-  priv_key: string;
-  pub_key: string;
   address: string;
+  owned_by: string;
+  role: string;
 }
 
 export default WalletInterface;

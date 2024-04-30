@@ -19,7 +19,7 @@ const kms = new KMSClient({
   },
 });
 const bip32 = BIP32Factory(ecc);
-const network = bitcoin.networks.bitcoin;
+const network = bitcoin.networks.testnet;
 // const network = bitcoin.networks.bitcoin;
 
 function getAddress(node: any): string {
@@ -60,7 +60,7 @@ async function decryptKey(cipherText: string): Promise<string> {
   );
 }
 
-async function initializeWallet(): Promise<WalletInterface> {
+async function initializeWallet(): Promise<string> {
   try {
     const random_bytes = crypto.randomBytes(16).toString("hex");
     const mnemonic = bip39.entropyToMnemonic(random_bytes);
@@ -69,24 +69,39 @@ async function initializeWallet(): Promise<WalletInterface> {
     const wallet = bip32.fromSeed(seed, network);
     const master = wallet.deriveHardened(44).deriveHardened(0); // Root wallet path: m/44'/0'
 
-    const wallet_info: WalletInterface = {
-      account_id: "",
-      priv_key: await encryptKey(master.toWIF()),
-      pub_key: master.publicKey.toString("hex"),
-      address: getAddress(master),
-    };
-
-    return wallet_info;
+    return await encryptKey(master.toWIF());
   } catch (err) {
     console.error(err);
     throw new Error("Error: Failed to initialize wallet");
   }
 }
 
+async function retrieveAllWallets(): Promise<WalletInterface[]> {
+  const WALLET_QUERY = `
+    SELECT wallets.address, accounts.username AS owned_by, roles.role_name AS role
+    FROM wallets
+    INNER JOIN accounts ON wallets.account_id = accounts.account_id
+    INNER JOIN roles ON accounts.role_id = roles.role_id
+  `;
+  return new Promise((resolve, reject) => {
+    db_connection.query(
+      WALLET_QUERY,
+      (err: MysqlError, res: WalletInterface[]) => {
+        if (err) reject(err);
+        resolve(res);
+      }
+    );
+  });
+}
+
 async function retrieveWalletByAccountId(
   account_id: string
 ): Promise<WalletInterface[]> {
-  const WALLET_QUERY = "SELECT * FROM wallets WHERE account_id = " + account_id;
+  const WALLET_QUERY = `
+    SELECT wallets.address, accounts.username AS owned_by, roles.role_name AS role FROM wallets 
+    INNER JOIN accounts ON wallets.account_id = accounts.account_id 
+    INNER JOIN roles ON accounts.role_id = roles.role_id
+    WHERE wallets.account_id = ${account_id}`;
   return new Promise((resolve, reject) => {
     db_connection.query(
       WALLET_QUERY,
@@ -98,4 +113,4 @@ async function retrieveWalletByAccountId(
   });
 }
 
-export { initializeWallet, retrieveWalletByAccountId };
+export { initializeWallet, retrieveAllWallets, retrieveWalletByAccountId };

@@ -21,7 +21,7 @@ app.post("/onboarding", async (req, res) => {
     company_name: req.body.company_name,
     company_email: req.body.company_email,
     company_desc: req.body.company_desc,
-    master_key: (await initializeWallet()).priv_key,
+    master_key: await initializeWallet(),
   };
 
   try {
