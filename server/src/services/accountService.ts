@@ -3,6 +3,7 @@ import { MysqlError } from 'mysql';
 import { db_connection } from '@db/init';
 import userInterface from '@interfaces/accountInterface';
 import departmentInterface from '@interfaces/departmentInterface';
+import { retrieveWalletByAddress } from './walletService';
 
 async function createAccount(new_account: userInterface) {
   const CREATE_ACCOUNT_QUERY = `INSERT INTO accounts (username, email, password, role_id, department_id) VALUES ('${new_account.username}', '${new_account.email}', '${new_account.password}', ${new_account.role_id}, ${new_account.department_id})`;
@@ -70,7 +71,7 @@ async function getAccountRole(account_id: string): Promise<string> {
 }
 
 async function retrieveDepartmentMembers(
-  department_id: Number
+  department_id: string
 ): Promise<userInterface[]> {
   const RETRIEVE_DEPARTMENT_MEMBERS_QUERY = `SELECT account_id, username, email, roles.role_name, departments.department_name FROM accounts INNER JOIN roles ON roles.role_id = accounts.role_id INNER JOIN departments ON accounts.department_id = departments.department_id WHERE accounts.department_id = ${department_id}`;
   return new Promise((resolve, reject) => {
@@ -106,6 +107,30 @@ async function hasPrivilegeToDerive(account_id: string): Promise<boolean> {
   });
 }
 
+async function hasPrivilegeToViewWallet(
+  account_id: string,
+  account_role: string,
+  wallet_address: string
+): Promise<boolean> {
+  if (account_role === 'admin') {
+    return true;
+  } else {
+    try {
+      const wallet = await retrieveWalletByAddress(wallet_address);
+
+      if (account_role === 'head') {
+        const account_department = await getAccountDepartment(account_id);
+        return account_department.department_id === wallet.department_id;
+      }
+
+      return account_id === wallet.account_id;
+    } catch (err) {
+      console.error(err);
+      return false;
+    }
+  }
+}
+
 export {
   createAccount,
   retrieveAccount,
@@ -115,4 +140,5 @@ export {
   retrieveDepartmentMembers,
   hasPrivilegeToCreate,
   hasPrivilegeToDerive,
+  hasPrivilegeToViewWallet,
 };

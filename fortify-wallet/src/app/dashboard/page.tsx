@@ -26,7 +26,7 @@ export default function Dashboard() {
   }, []);
 
   return (
-    <div className="">
+    <div className="w-full">
       <div className="mb-[1rem] w-full flex justify-between items-center">
         <h2 className="text-3xl font-bold">Dashboard</h2>
         {user_role !== "member" && (
@@ -51,7 +51,7 @@ export default function Dashboard() {
           </button>
         )}
       </div>
-      <table className="text-left">
+      <table className="w-full text-left">
         <thead className="font-bold">
           <tr>
             <th className="w-[6rem] max-w-[8vw] px-2 py-1">No</th>
@@ -60,9 +60,9 @@ export default function Dashboard() {
             <th className="w-[15rem] max-w-[25vw] px-2 py-1">Department</th>
           </tr>
         </thead>
-        <tbody className="text-sm">
+        <tbody className="w-full text-sm">
           {wallets.map((wallet, ind) => (
-            <tr key={ind} className="px-[1rem] py-2">
+            <tr key={ind} className="px-[1rem] py-2 hover:bg-slate-100 transition-all duration-150 cursor-pointer rounded-lg" onClick={() => router.push("/dashboard/wallet/" + wallet.address)}>
               <td className="w-[6rem] max-w-[8vw] y-2 px-2 overflow-hidden text-ellipsis">
                 {ind + 1}
               </td>

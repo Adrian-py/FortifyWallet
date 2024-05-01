@@ -1,5 +1,5 @@
 interface departmentInterface {
-  department_id: number;
+  department_id: string;
   department_name: string;
 }
 

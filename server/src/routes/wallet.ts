@@ -12,10 +12,11 @@ import {
   getAccountDepartment,
   hasPrivilegeToCreate,
   hasPrivilegeToDerive,
+  hasPrivilegeToViewWallet,
 } from '@services/accountService';
 import tokenMiddleware from '@middleware/tokenMiddleware';
 import roleMiddleware from '@middleware/roleMiddleware';
-import { get } from 'http';
+import { retrieveWalletInfo } from '@services/blockcypherService';
 
 const app = express.Router();
 
@@ -65,6 +66,41 @@ app.post('/retrieve', async (req, res) => {
       status: 500,
       message:
         "Error: Something wen't wrong when trying to retrieve the wallets",
+    });
+  }
+});
+
+app.get('/info/:address', async (req, res) => {
+  try {
+    const access_token = req.cookies.access_token;
+    const account = jwt.decode(access_token) as JwtPayload;
+    const address = req.params.address;
+
+    if (
+      !(await hasPrivilegeToViewWallet(
+        account.account_id,
+        account.role,
+        address
+      ))
+    )
+      return res.status(401).json({
+        status: 401,
+        message: 'Not authorized!',
+      });
+
+    const wallet_info = await retrieveWalletInfo(address);
+
+    return res.status(200).json({
+      status: 200,
+      message: 'Successfully retrieved wallet information',
+      wallet_info: wallet_info,
+    });
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({
+      status: 500,
+      message:
+        'Error: Something went wrong when trying to retrieve your wallet information',
     });
   }
 });

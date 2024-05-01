@@ -28,7 +28,7 @@ export default function DashboardLayout({
       {verified ? (
         <>
           <Header />
-          <main className="px-[5vw] pt-[2rem]">
+          <main className="w-screen px-[5vw] pt-[2rem]">
             <Navbar />
             {children}
           </main>

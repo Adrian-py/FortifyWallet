@@ -111,7 +111,7 @@ async function deriveWallet(account_id: string) {
 }
 
 async function retrieveNumberOfWalletsInDepartment(
-  department_id: Number
+  department_id: string
 ): Promise<number> {
   const WALLET_QUERY = `SELECT COUNT(*) AS address_index FROM wallets WHERE department_id = ${department_id}`;
   return new Promise((resolve, reject) => {
@@ -157,7 +157,7 @@ async function retrieveAllWallets(): Promise<WalletInterface[]> {
 }
 
 async function retrieveAllDepartmentWallets(
-  department_id: Number
+  department_id: string
 ): Promise<WalletInterface[]> {
   const WALLET_QUERY = `
     SELECT wallets.address, accounts.username AS owned_by, departments.department_name as department FROM wallets
@@ -195,10 +195,26 @@ async function retrieveWalletByAccountId(
   });
 }
 
+async function retrieveWalletByAddress(
+  address: string
+): Promise<WalletInterface> {
+  const WALLET_QUERY = `SELECT wallets.wallet_id, wallets.account_id, wallets.department_id FROM wallets WHERE wallets.address = ${address}`;
+  return new Promise((resolve, reject) => {
+    db_connection.query(
+      WALLET_QUERY,
+      (err: MysqlError, res: WalletInterface[]) => {
+        if (err) reject(err);
+        resolve(res[0]);
+      }
+    );
+  });
+}
+
 export {
   initializeWallet,
   deriveWallet,
   retrieveAllDepartmentWallets,
   retrieveAllWallets,
   retrieveWalletByAccountId,
+  retrieveWalletByAddress,
 };
