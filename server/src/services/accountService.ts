@@ -1,9 +1,9 @@
-import { MysqlError } from 'mysql';
+import { MysqlError } from "mysql";
 
-import { db_connection } from '@db/init';
-import userInterface from '@interfaces/accountInterface';
-import departmentInterface from '@interfaces/departmentInterface';
-import { retrieveWalletByAddress } from './walletService';
+import { db_connection } from "@db/init";
+import userInterface from "@interfaces/accountInterface";
+import departmentInterface from "@interfaces/departmentInterface";
+import { retrieveWalletByAddress } from "./walletService";
 
 async function createAccount(new_account: userInterface) {
   const CREATE_ACCOUNT_QUERY = `INSERT INTO accounts (username, email, password, role_id, department_id) VALUES ('${new_account.username}', '${new_account.email}', '${new_account.password}', ${new_account.role_id}, ${new_account.department_id})`;
@@ -87,22 +87,12 @@ async function retrieveDepartmentMembers(
   });
 }
 
-async function hasPrivilegeToCreate(account_id: string): Promise<boolean> {
-  const PRIVILEGE_QUERY = `SELECT role_name FROM roles WHERE role_id = (SELECT role_id FROM accounts WHERE account_id = ${account_id})`;
-  return new Promise((resolve, reject) => {
-    db_connection.query(PRIVILEGE_QUERY, (err: MysqlError, res: any) => {
-      if (err) reject(err);
-      resolve(res[0].role_name == 'admin');
-    });
-  });
-}
-
 async function hasPrivilegeToDerive(account_id: string): Promise<boolean> {
   const PRIVILEGE_QUERY = `SELECT role_name FROM roles WHERE role_id = (SELECT role_id FROM accounts WHERE account_id = ${account_id})`;
   return new Promise((resolve, reject) => {
     db_connection.query(PRIVILEGE_QUERY, (err: MysqlError, res: any) => {
       if (err) reject(err);
-      resolve(res[0].role_name == 'admin' || res[0].role_name == 'head');
+      resolve(res[0].role_name == "admin" || res[0].role_name == "head");
     });
   });
 }
@@ -112,13 +102,13 @@ async function hasPrivilegeToViewWallet(
   account_role: string,
   wallet_address: string
 ): Promise<boolean> {
-  if (account_role === 'admin') {
+  if (account_role === "admin") {
     return true;
   } else {
     try {
       const wallet = await retrieveWalletByAddress(wallet_address);
 
-      if (account_role === 'head') {
+      if (account_role === "head") {
         const account_department = await getAccountDepartment(account_id);
         return account_department.department_id === wallet.department_id;
       }
@@ -138,7 +128,6 @@ export {
   getAccountDepartment,
   getAccountRole,
   retrieveDepartmentMembers,
-  hasPrivilegeToCreate,
   hasPrivilegeToDerive,
   hasPrivilegeToViewWallet,
 };

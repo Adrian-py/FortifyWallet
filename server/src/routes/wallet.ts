@@ -1,28 +1,26 @@
-import express from 'express';
-import jwt, { JwtPayload } from 'jsonwebtoken';
+import express from "express";
+import jwt, { JwtPayload } from "jsonwebtoken";
 
 import {
   deriveWallet,
-  initializeWallet,
   retrieveAllDepartmentWallets,
   retrieveAllWallets,
   retrieveWalletByAccountId,
-} from '@services/walletService';
+} from "@services/walletService";
 import {
   getAccountDepartment,
-  hasPrivilegeToCreate,
   hasPrivilegeToDerive,
   hasPrivilegeToViewWallet,
-} from '@services/accountService';
-import tokenMiddleware from '@middleware/tokenMiddleware';
-import roleMiddleware from '@middleware/roleMiddleware';
-import { retrieveWalletInfo } from '@services/blockcypherService';
+} from "@services/accountService";
+import tokenMiddleware from "@middleware/tokenMiddleware";
+import roleMiddleware from "@middleware/roleMiddleware";
+import { retrieveWalletInfo } from "@services/blockcypherService";
 
 const app = express.Router();
 
 app.use(tokenMiddleware);
 
-app.post('/derive', roleMiddleware, async (req, res) => {
+app.post("/derive", roleMiddleware, async (req, res) => {
   try {
     const access_token = req.cookies.access_token;
     const account = jwt.decode(access_token) as JwtPayload;
@@ -30,30 +28,31 @@ app.post('/derive', roleMiddleware, async (req, res) => {
 
     // Check if account has privilege to derive
     if (!(await hasPrivilegeToDerive(account.account_id)))
-      return res.status(401).json({ message: 'Not Authorized' });
+      return res.status(401).json({ message: "Not Authorized" });
 
     await deriveWallet(recipient_account_id);
 
     return res
       .status(200)
-      .json({ status: 200, message: 'Successfully derived wallet!' });
-  } catch (err) {
+      .json({ status: 200, message: "Successfully derived wallet!" });
+  } catch (err: any) {
     console.error(err);
     return res.status(500).json({
       status: 500,
       message: "Error: Something wen't wrong when trying to derive a wallet",
+      error: err.message,
     });
   }
 });
 
-app.post('/retrieve', async (req, res) => {
+app.post("/retrieve", async (req, res) => {
   try {
     const access_token = req.cookies.access_token;
     const account = jwt.decode(access_token) as JwtPayload;
 
     let wallet = null;
-    if (account.role === 'admin') wallet = await retrieveAllWallets();
-    else if (account.role === 'head') {
+    if (account.role === "admin") wallet = await retrieveAllWallets();
+    else if (account.role === "head") {
       const department_id = (await getAccountDepartment(account.account_id))
         .department_id;
       wallet = await retrieveAllDepartmentWallets(department_id);
@@ -70,7 +69,7 @@ app.post('/retrieve', async (req, res) => {
   }
 });
 
-app.get('/info/:address', async (req, res) => {
+app.get("/info/:address", async (req, res) => {
   try {
     const access_token = req.cookies.access_token;
     const account = jwt.decode(access_token) as JwtPayload;
@@ -85,43 +84,23 @@ app.get('/info/:address', async (req, res) => {
     )
       return res.status(401).json({
         status: 401,
-        message: 'Not authorized!',
+        message: "Not authorized!",
       });
 
     const wallet_info = await retrieveWalletInfo(address);
 
     return res.status(200).json({
       status: 200,
-      message: 'Successfully retrieved wallet information',
+      message: "Successfully retrieved wallet information",
       wallet_info: wallet_info,
     });
-  } catch (err) {
+  } catch (err: any) {
     console.log(err);
     return res.status(500).json({
       status: 500,
       message:
-        'Error: Something went wrong when trying to retrieve your wallet information',
-    });
-  }
-});
-
-app.get('/create', roleMiddleware, async (req, res) => {
-  try {
-    const access_token = req.cookies.access_token;
-    const account = jwt.decode(access_token) as JwtPayload;
-
-    // Check if account has privilege to create a wallet
-    if (await hasPrivilegeToCreate(account.account_id))
-      return res.status(401).json({ message: 'Not Authorized' });
-
-    const wallet = await initializeWallet();
-
-    return res.status(200).json({ status: 200, wallet });
-  } catch (err) {
-    console.error(err);
-    return res.status(500).json({
-      status: 500,
-      message: "Error: Something wen't wrong when trying to create a wallet",
+        "Error: Something went wrong when trying to retrieve your wallet information",
+      error: err.message,
     });
   }
 });
