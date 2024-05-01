@@ -1,29 +1,29 @@
-import express from "express";
-import jwt, { JwtPayload } from "jsonwebtoken";
-import bcrypt from "bcrypt";
+import express from 'express';
+import jwt, { JwtPayload } from 'jsonwebtoken';
+import bcrypt from 'bcrypt';
 
-import roleMiddleware from "@middleware/roleMiddleware";
-import tokenMiddleware from "@middleware/tokenMiddleware";
+import roleMiddleware from '@middleware/roleMiddleware';
+import tokenMiddleware from '@middleware/tokenMiddleware';
 import {
   createAccount,
   retrieveAllAccounts,
   retrieveDepartmentMembers,
   getAccountDepartment,
-} from "@services/accountService";
-import { retrieveRoleId } from "@services/roleService";
-import { checkIfDepartmentAlreadyHasHead } from "@services/departmentService";
+} from '@services/accountService';
+import { retrieveRoleId } from '@services/roleService';
+import { checkIfDepartmentAlreadyHasHead } from '@services/departmentService';
 
 const app = express.Router();
 
 app.use(tokenMiddleware);
 app.use(roleMiddleware);
 
-app.get("/retrieve", async (req, res) => {
+app.get('/retrieve', async (req, res) => {
   try {
     const access_token = req.cookies.access_token;
     const account = jwt.decode(access_token) as JwtPayload;
 
-    if (account.role === "admin") {
+    if (account.role === 'admin') {
       const accounts = await retrieveAllAccounts();
       return res.status(200).json({ status: 200, accounts });
     }
@@ -34,11 +34,11 @@ app.get("/retrieve", async (req, res) => {
     console.error(err);
     return res
       .status(500)
-      .json({ message: "Something went wrong in the server!" });
+      .json({ message: 'Something went wrong in the server!' });
   }
 });
 
-app.post("/create", async (req, res) => {
+app.post('/create', async (req, res) => {
   const access_token = req.cookies.access_token;
   const account = jwt.decode(access_token) as JwtPayload;
 
@@ -52,35 +52,40 @@ app.post("/create", async (req, res) => {
     };
 
     // If creator is a department head, assign the new account to the same department
-    if (account.role === "head")
+    if (account.role === 'head')
       new_account.department_id = (
         await getAccountDepartment(account.account_id)
       ).department_id;
 
+    if (!new_account.department_id)
+      return res
+        .status(400)
+        .json({ status: 400, message: 'Missing departtment id!' });
+
     // Check if department already has a head if the new account's role is head
     if (
-      req.body.new_account.role === "head" &&
+      req.body.new_account.role === 'head' &&
       (await checkIfDepartmentAlreadyHasHead(
         req.body.new_account.department_id
       ))
     ) {
       return res
         .status(400)
-        .json({ status: 400, message: "Department already has a head!" });
+        .json({ status: 400, message: 'Department already has a head!' });
     }
 
     return await createAccount(new_account).then((_) => {
       console.log(
-        "A new account was created by account id: ",
+        'A new account was created by account id: ',
         account.account_id
       );
-      return res.status(200).json({ status: 200, message: "account created!" });
+      return res.status(200).json({ status: 200, message: 'account created!' });
     });
   } catch (err: any) {
     console.log(err);
     return res.status(500).json({
       status: 500,
-      message: "Error: Something went wrong when creating account!",
+      message: 'Error: Something went wrong when creating account!',
     });
   }
 });

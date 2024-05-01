@@ -1,8 +1,8 @@
-import { MysqlError } from "mysql";
+import { MysqlError } from 'mysql';
 
-import { db_connection } from "@db/init";
-import userInterface from "@interfaces/accountInterface";
-import departmentInterface from "@interfaces/departmentInterface";
+import { db_connection } from '@db/init';
+import userInterface from '@interfaces/accountInterface';
+import departmentInterface from '@interfaces/departmentInterface';
 
 async function createAccount(new_account: userInterface) {
   const CREATE_ACCOUNT_QUERY = `INSERT INTO accounts (username, email, password, role_id, department_id) VALUES ('${new_account.username}', '${new_account.email}', '${new_account.password}', ${new_account.role_id}, ${new_account.department_id})`;
@@ -52,6 +52,7 @@ async function getAccountDepartment(
   const DEPARTMENT_QUERY = `SELECT department_name, department_id FROM departments WHERE department_id = (SELECT department_id FROM accounts WHERE account_id = ${account_id})`;
   return new Promise((resolve, reject) => {
     db_connection.query(DEPARTMENT_QUERY, (err: MysqlError, res: any) => {
+      // console.log(err, res);
       if (err) reject(err);
       resolve(res[0]);
     });
@@ -90,7 +91,7 @@ async function hasPrivilegeToCreate(account_id: string): Promise<boolean> {
   return new Promise((resolve, reject) => {
     db_connection.query(PRIVILEGE_QUERY, (err: MysqlError, res: any) => {
       if (err) reject(err);
-      resolve(res[0].role_name == "admin");
+      resolve(res[0].role_name == 'admin');
     });
   });
 }
@@ -100,7 +101,7 @@ async function hasPrivilegeToDerive(account_id: string): Promise<boolean> {
   return new Promise((resolve, reject) => {
     db_connection.query(PRIVILEGE_QUERY, (err: MysqlError, res: any) => {
       if (err) reject(err);
-      resolve(res[0].role_name == "admin" || res[0].role_name == "head");
+      resolve(res[0].role_name == 'admin' || res[0].role_name == 'head');
     });
   });
 }

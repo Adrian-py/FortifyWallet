@@ -1,5 +1,5 @@
-import express from "express";
-import jwt, { JwtPayload } from "jsonwebtoken";
+import express from 'express';
+import jwt, { JwtPayload } from 'jsonwebtoken';
 
 import {
   deriveWallet,
@@ -7,21 +7,21 @@ import {
   retrieveAllDepartmentWallets,
   retrieveAllWallets,
   retrieveWalletByAccountId,
-} from "@services/walletService";
+} from '@services/walletService';
 import {
   getAccountDepartment,
   hasPrivilegeToCreate,
   hasPrivilegeToDerive,
-} from "@services/accountService";
-import tokenMiddleware from "@middleware/tokenMiddleware";
-import roleMiddleware from "@middleware/roleMiddleware";
-import { get } from "http";
+} from '@services/accountService';
+import tokenMiddleware from '@middleware/tokenMiddleware';
+import roleMiddleware from '@middleware/roleMiddleware';
+import { get } from 'http';
 
 const app = express.Router();
 
 app.use(tokenMiddleware);
 
-app.post("/derive", roleMiddleware, async (req, res) => {
+app.post('/derive', roleMiddleware, async (req, res) => {
   try {
     const access_token = req.cookies.access_token;
     const account = jwt.decode(access_token) as JwtPayload;
@@ -29,13 +29,13 @@ app.post("/derive", roleMiddleware, async (req, res) => {
 
     // Check if account has privilege to derive
     if (!(await hasPrivilegeToDerive(account.account_id)))
-      return res.status(401).json({ message: "Not Authorized" });
+      return res.status(401).json({ message: 'Not Authorized' });
 
     await deriveWallet(recipient_account_id);
 
     return res
       .status(200)
-      .json({ status: 200, message: "Successfully derived wallet!" });
+      .json({ status: 200, message: 'Successfully derived wallet!' });
   } catch (err) {
     console.error(err);
     return res.status(500).json({
@@ -45,14 +45,14 @@ app.post("/derive", roleMiddleware, async (req, res) => {
   }
 });
 
-app.post("/retrieve", async (req, res) => {
+app.post('/retrieve', async (req, res) => {
   try {
     const access_token = req.cookies.access_token;
     const account = jwt.decode(access_token) as JwtPayload;
 
     let wallet = null;
-    if (account.role === "admin") wallet = await retrieveAllWallets();
-    else if (account.role === "head") {
+    if (account.role === 'admin') wallet = await retrieveAllWallets();
+    else if (account.role === 'head') {
       const department_id = (await getAccountDepartment(account.account_id))
         .department_id;
       wallet = await retrieveAllDepartmentWallets(department_id);
@@ -69,14 +69,14 @@ app.post("/retrieve", async (req, res) => {
   }
 });
 
-app.get("/create", roleMiddleware, async (req, res) => {
+app.get('/create', roleMiddleware, async (req, res) => {
   try {
     const access_token = req.cookies.access_token;
     const account = jwt.decode(access_token) as JwtPayload;
 
     // Check if account has privilege to create a wallet
     if (await hasPrivilegeToCreate(account.account_id))
-      return res.status(401).json({ message: "Not Authorized" });
+      return res.status(401).json({ message: 'Not Authorized' });
 
     const wallet = await initializeWallet();
 

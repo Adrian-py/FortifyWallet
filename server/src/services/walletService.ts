@@ -1,22 +1,22 @@
-import { MysqlError } from "mysql";
-import { KMSClient, EncryptCommand, DecryptCommand } from "@aws-sdk/client-kms";
-import * as bitcoin from "bitcoinjs-lib";
-import ECPairFactory from "ecpair";
-import * as ecc from "tiny-secp256k1";
-import BIP32Factory from "bip32";
-import * as bip39 from "bip39";
-import crypto from "crypto";
+import { MysqlError } from 'mysql';
+import { KMSClient, EncryptCommand, DecryptCommand } from '@aws-sdk/client-kms';
+import * as bitcoin from 'bitcoinjs-lib';
+import ECPairFactory from 'ecpair';
+import * as ecc from 'tiny-secp256k1';
+import BIP32Factory from 'bip32';
+import * as bip39 from 'bip39';
+import crypto from 'crypto';
 
-import { db_connection } from "@db/init";
-import WalletInterface from "@interfaces/walletInterface";
-import { getAccountDepartment } from "./accountService";
+import { db_connection } from '@db/init';
+import WalletInterface from '@interfaces/walletInterface';
+import { getAccountDepartment } from './accountService';
 
 const ECPair = ECPairFactory(ecc);
 const kms = new KMSClient({
-  region: "ap-southeast-2",
+  region: 'ap-southeast-2',
   credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID ?? "",
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY ?? "",
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID ?? '',
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY ?? '',
   },
 });
 const bip32 = BIP32Factory(ecc);
@@ -25,7 +25,7 @@ const network = bitcoin.networks.testnet;
 
 function getAddress(node: any): string {
   return (
-    bitcoin.payments.p2pkh({ pubkey: node.publicKey, network }).address ?? ""
+    bitcoin.payments.p2pkh({ pubkey: node.publicKey, network }).address ?? ''
   );
 }
 
@@ -33,20 +33,20 @@ async function encryptKey(key: string): Promise<string> {
   const kmsKeyId = process.env.KMS_KEY_ID;
 
   if (!kmsKeyId)
-    throw new Error("KMS Key ID not found in environment variables");
+    throw new Error('KMS Key ID not found in environment variables');
   const command = new EncryptCommand({
     KeyId: kmsKeyId,
     Plaintext: new TextEncoder().encode(key),
   });
   const cipherText = await kms.send(command);
-  return Buffer.from(cipherText.CiphertextBlob ?? "").toString("base64");
+  return Buffer.from(cipherText.CiphertextBlob ?? '').toString('base64');
 }
 
 async function decryptKey(cipherText: string): Promise<string> {
   const kmsKeyId = process.env.KMS_KEY_ID;
 
   if (!kmsKeyId)
-    throw new Error("KMS Key ID not found in environment variables");
+    throw new Error('KMS Key ID not found in environment variables');
   const command = new DecryptCommand({
     KeyId: kmsKeyId,
     CiphertextBlob: Uint8Array.from(atob(cipherText), (v) => v.charCodeAt(0)),
@@ -62,7 +62,7 @@ async function decryptKey(cipherText: string): Promise<string> {
 
 async function initializeWallet(): Promise<string> {
   try {
-    const random_bytes = crypto.randomBytes(16).toString("hex");
+    const random_bytes = crypto.randomBytes(16).toString('hex');
     const mnemonic = bip39.entropyToMnemonic(random_bytes);
     const seed = bip39.mnemonicToSeedSync(mnemonic);
 
@@ -72,7 +72,7 @@ async function initializeWallet(): Promise<string> {
     return await encryptKey(master.toWIF());
   } catch (err) {
     console.error(err);
-    throw new Error("Error: Failed to initialize wallet");
+    throw new Error('Error: Failed to initialize wallet');
   }
 }
 
@@ -88,7 +88,7 @@ async function deriveWallet(account_id: string) {
 
     const key_pair = ECPair.fromWIF(priv_key, network);
     const root = bip32.fromPrivateKey(
-      Buffer.from(key_pair.privateKey?.toString("hex") ?? "", "hex"),
+      Buffer.from(key_pair.privateKey?.toString('hex') ?? '', 'hex'),
       Buffer.alloc(32),
       network
     );
@@ -96,17 +96,17 @@ async function deriveWallet(account_id: string) {
     const derivation_path = `m/44'/0'/${department_id}'/0/${address_index}`;
     const derived_child = root.derivePath(derivation_path);
     const address = getAddress(derived_child);
-    const pub_key = derived_child.publicKey.toString("hex");
+    const pub_key = derived_child.publicKey.toString('hex');
 
     const WALLET_QUERY = `INSERT INTO wallets (address, account_id, department_id, pub_key, derivation_path) VALUES ("${address}", ${account_id}, ${department_id}, "${pub_key}", "${derivation_path}")`;
     return new Promise((resolve, reject) => {
       db_connection.query(WALLET_QUERY, (err: MysqlError) => {
         if (err) reject(err);
-        resolve({ address, owned_by: account_id, role: "user" });
+        resolve({ address, owned_by: account_id, role: 'user' });
       });
     });
   } catch (err) {
-    throw new Error("Error: Failed to derive wallet");
+    throw new Error('Error: Failed to derive wallet');
   }
 }
 
@@ -135,7 +135,7 @@ async function retrieveMasterKey(): Promise<string> {
     });
   } catch (err) {
     console.error(err);
-    throw new Error("Error: Failed to retrieve master key");
+    throw new Error('Error: Failed to retrieve master key');
   }
 }
 

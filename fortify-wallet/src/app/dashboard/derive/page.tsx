@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 
 export default function DerivePage() {
   const router = useRouter();
-  const [walletOwner, setWalletOwner] = useState<string>("" as string);
+  const [walletOwner, setWalletOwner] = useState<string>("-" as string);
   const [accounts, setAccounts] = useState<any[]>([]);
 
   useEffect(() => {
@@ -17,6 +17,11 @@ export default function DerivePage() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    if (walletOwner === "-") {
+      return alert("Choose wallet owner");
+    }
+
     await fetch("/api/wallet/derive", {
       method: "POST",
       headers: {
@@ -82,6 +87,7 @@ export default function DerivePage() {
           onChange={handleWalletOwnerChange}
           className="px-[0.5rem] py-[0.4rem] w-[50%] border-[2px] border-gray-400 rounded-md"
         >
+          <option value="-">-</option>
           {accounts.map((account, ind) => (
             <option key={ind} value={account.account_id}>
               {account.username} - {account.department_name}
