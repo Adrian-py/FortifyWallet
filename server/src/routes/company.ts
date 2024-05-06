@@ -16,12 +16,14 @@ app.get("/", (_req, res) => {
 });
 
 app.post("/onboarding", async (req, res) => {
+  const key = await initializeWallet();
   const companyInfo: companyInfo = {
     company_id: 1,
     company_name: req.body.company_name,
     company_email: req.body.company_email,
     company_desc: req.body.company_desc,
-    master_key: await initializeWallet(),
+    public_key: key.public_key,
+    private_key: key.private_key,
   };
 
   try {

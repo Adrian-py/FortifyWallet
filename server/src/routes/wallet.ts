@@ -9,6 +9,7 @@ import {
 } from "@services/walletService";
 import {
   getAccountDepartment,
+  getAccountRole,
   hasPrivilegeToDerive,
   hasPrivilegeToViewWallet,
 } from "@services/accountService";
@@ -24,13 +25,14 @@ app.post("/derive", roleMiddleware, async (req, res) => {
   try {
     const access_token = req.cookies.access_token;
     const account = jwt.decode(access_token) as JwtPayload;
-    const recipient_account_id = req.body.account_id;
+    const recipient_account = req.body;
 
     // Check if account has privilege to derive
     if (!(await hasPrivilegeToDerive(account.account_id)))
       return res.status(401).json({ message: "Not Authorized" });
 
-    await deriveWallet(recipient_account_id);
+    const account_role = await getAccountRole(recipient_account.account_id);
+    await deriveWallet(recipient_account.account_id, account_role);
 
     return res
       .status(200)

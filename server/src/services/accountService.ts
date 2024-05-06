@@ -121,6 +121,14 @@ async function hasPrivilegeToViewWallet(
   }
 }
 
+async function hasPrivilegeToTransfer(
+  account_id: string,
+  wallet_address: string
+): Promise<boolean> {
+  const wallet = await retrieveWalletByAddress(wallet_address);
+  return account_id === wallet.account_id;
+}
+
 export {
   createAccount,
   retrieveAccount,
@@ -130,4 +138,5 @@ export {
   retrieveDepartmentMembers,
   hasPrivilegeToDerive,
   hasPrivilegeToViewWallet,
+  hasPrivilegeToTransfer,
 };

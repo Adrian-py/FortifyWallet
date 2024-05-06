@@ -8,6 +8,7 @@ import path from "path";
 import auth from "@routes/auth";
 import company from "@routes/company";
 import wallet from "@routes/wallet";
+import transactions from "@routes/transaction";
 import account from "@routes/account";
 import department from "@routes/department";
 import { connectToDatabase } from "@db/init";
@@ -25,6 +26,7 @@ app.use(express.static(path.join(__dirname, "../public/")));
 app.use("/company", company);
 app.use("/auth", auth);
 app.use("/wallet", wallet);
+app.use("/transactions", transactions);
 app.use("/accounts", account);
 app.use("/departments", department);
 
