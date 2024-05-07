@@ -2,17 +2,11 @@ import express from "express";
 import jwt, { JwtPayload } from "jsonwebtoken";
 
 import tokenMiddleware from "@middleware/tokenMiddleware";
-import {
-  getAccountDepartment,
-  hasPrivilegeToTransfer,
-} from "@services/accountService";
+import { hasPrivilegeToTransfer } from "@services/accountService";
 import {
   derivePrivateKey,
   getMultisigPubKeys,
   retrieveAddressBalance,
-  retrieveMasterKey,
-  retrieveMasterPublicKey,
-  retrieveMemberDepartmentHeadPublicKey,
   retrieveWalletByAccountId,
   retrieveWalletByAddress,
 } from "@services/walletService";
@@ -24,15 +18,15 @@ import {
 } from "@services/blockcypherService";
 import {
   retrieveAllTransactions,
-  retrieveTransactionsByInitiatorId,
-  retrieveTransactionsByDepartment,
   retrieveTransactionsByWalletAddress,
   saveTransaction,
   retrieveTransactionByTransactionId,
   updatePSBT,
   updateTransactionStatus,
+  retrieveActiveTransactionsByWalletAddress,
+  updateTransactionBroadcastStatus,
 } from "@services/transactionService";
-import TransactionInterface from "@interfaces/transactionInterface";
+import { TransactionInterface } from "@interfaces/transactionInterface";
 import { saveTransactionApproval } from "@services/transactionApprovalService";
 
 const app = express.Router();
@@ -44,16 +38,7 @@ app.get("/retrieve", async (req, res) => {
   const account = jwt.decode(access_token) as JwtPayload;
 
   let transactions: any[] = [];
-  if (account.role === "admin") {
-    transactions = await retrieveAllTransactions();
-  } else if (account.role === "head") {
-    const account_department = await getAccountDepartment(account.account_id);
-    transactions = await retrieveTransactionsByDepartment(
-      account_department.department_id
-    );
-  } else if (account.role === "member") {
-    transactions = await retrieveTransactionsByInitiatorId(account.account_id);
-  }
+  transactions = await retrieveAllTransactions(account.account_id);
   return res.status(200).json({
     status: 200,
     message: "Transactions retrieved successfully!",
@@ -63,7 +48,6 @@ app.get("/retrieve", async (req, res) => {
 
 app.get("/retrieve/:txid", async (req, res) => {
   const { txid } = req.params;
-  const access_token = req.cookies.access_token;
 
   const transaction = await retrieveTransactionByTransactionId(txid);
   if (!transaction)
@@ -86,7 +70,9 @@ app.post("/transfer", async (req, res) => {
 
   // Check if there are any active transactions for the source address
   // If there are, return an error
-  if ((await retrieveTransactionsByWalletAddress(source_address)).length > 0)
+  if (
+    (await retrieveActiveTransactionsByWalletAddress(source_address)).length > 0
+  )
     return res.status(400).json({
       message:
         "There is already an active transaction for the address. Multiple active transactions are not allowed to prevent double spending.",
@@ -118,7 +104,7 @@ app.post("/transfer", async (req, res) => {
     const multisig_pubkeys = await getMultisigPubKeys(
       initiator_wallet.pub_key ?? "",
       account.account_id,
-      account.account_role
+      account.role
     );
     let partially_signed_transaction = await createTransaction(
       source_address,
@@ -133,14 +119,13 @@ app.post("/transfer", async (req, res) => {
       sender: source_address,
       recipient: target_address,
       num_signatures: 0,
-      num_of_needed_signatures: multisig_pubkeys.length,
+      num_of_needed_signatures: 2,
       value: value,
       pending: 1,
+      broadcasted: 0,
     };
 
-    const savedTransactionId = await saveTransaction(transaction);
-    await saveTransactionApproval(savedTransactionId, account.account_id);
-
+    await saveTransaction(transaction);
     return res.status(200).json({
       status: 200,
       message: "Transaction created successfully!",
@@ -156,7 +141,6 @@ app.post("/transfer", async (req, res) => {
 });
 
 app.post("/sign", async (req, res) => {
-  // const { password } = req.body;
   const { transaction_id, sender_address } = req.body;
   const access_token = req.cookies.access_token;
   const account = jwt.decode(access_token) as JwtPayload;
@@ -165,32 +149,76 @@ app.post("/sign", async (req, res) => {
 
   if (account.role === "admin") signer_wallet = await derivePrivateKey("");
   else {
-    const wallet_info = await retrieveWalletByAddress(sender_address);
-    signer_wallet = await derivePrivateKey(wallet_info.derivation_path ?? "");
+    let wallet_info;
+    if (account.role === "head") {
+      wallet_info = (await retrieveWalletByAccountId(account.account_id))[0];
+    } else {
+      wallet_info = await retrieveWalletByAddress(sender_address);
+    }
     if (!wallet_info)
       return res
         .status(404)
         .json({ status: 404, message: "Wallet not found!" });
+    signer_wallet = await derivePrivateKey(wallet_info.derivation_path ?? "");
   }
 
-  const psbt = await retrieveTransactionByTransactionId(transaction_id);
-  const signed_psbt = await signTransaction(
-    psbt[0].psbt ?? "",
-    signer_wallet,
-    0
-  );
+  try {
+    const psbt = await retrieveTransactionByTransactionId(transaction_id);
+    const signed_psbt = await signTransaction(
+      psbt[0].psbt ?? "",
+      signer_wallet,
+      0
+    );
 
-  await updatePSBT(transaction_id, signed_psbt);
-  await saveTransactionApproval(transaction_id, account.account_id);
-  if (await validateAllSignaturesCompleted(signed_psbt)) {
-    await broadcastTransaction(signed_psbt);
-    await updateTransactionStatus(transaction_id);
+    // If all needed signatures are present, update the transaction status
+    if ((psbt[0].num_signatures ?? -1) + 1 === psbt[0].num_of_needed_signatures)
+      await updateTransactionStatus(transaction_id);
+    await updatePSBT(transaction_id, signed_psbt);
+    await saveTransactionApproval(transaction_id, account.account_id);
+
+    return res.status(200).json({
+      status: 200,
+      message: "Transaction signed successfully!",
+    });
+  } catch (err: any) {
+    console.error(err);
+    return res.status(400).json({
+      status: 400,
+      message: "Error signing transaction",
+      error: err.message,
+    });
   }
+});
 
-  return res.status(200).json({
-    status: 200,
-    message: "Transaction signed successfully!",
-  });
+app.post("/broadcast", async (req, res) => {
+  const { transaction_id } = req.body;
+  try {
+    const signed_psbt = (
+      await retrieveTransactionByTransactionId(transaction_id)
+    )[0].psbt;
+
+    if (!signed_psbt)
+      return res.status(404).json({
+        status: 404,
+        message: "Transaction not found!",
+      });
+    if (await validateAllSignaturesCompleted(signed_psbt)) {
+      await broadcastTransaction(signed_psbt);
+      await updateTransactionBroadcastStatus(transaction_id);
+    }
+    return res.status(200).json({
+      status: 200,
+      message:
+        "Transaction broadcasted successfully! Await blockchain confirmation.",
+    });
+  } catch (err: any) {
+    console.error(err);
+    return res.status(400).json({
+      status: 400,
+      message: "Error broadcasting transaction",
+      error: err.message,
+    });
+  }
 });
 
 export default app;

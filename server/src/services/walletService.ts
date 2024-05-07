@@ -38,13 +38,13 @@ async function getMultisigPubKeys(
       )
     );
   multisig_pubkeys.push(Buffer.from(await retrieveMasterPublicKey(), "hex"));
+  console.log(public_key, account_id, account_role, multisig_pubkeys);
   return multisig_pubkeys;
 }
 
 async function getP2SHAddress(multisig_pubkeys: Buffer[]): Promise<string> {
   let m = multisig_pubkeys.length - 1;
   if (m === 1) m = 2;
-  console.log(multisig_pubkeys);
 
   return (
     bitcoin.payments.p2sh({

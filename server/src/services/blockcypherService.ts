@@ -75,14 +75,13 @@ async function createTransaction(
   multisig_pubkeys: Buffer[],
   value: number
 ): Promise<string> {
-  console.log(multisig_pubkeys);
-  const m = multisig_pubkeys.length;
+  const m = 2; // 2 of 3 multisig or 2 of 2 multisig
   const redeemScript = bitcoin.payments.p2ms({
     m,
     pubkeys: multisig_pubkeys,
     network,
   });
-  const fees = 1000;
+  const fees = 10000; // 10000 satoshis for fees
   const payment = bitcoin.payments.p2sh({ redeem: redeemScript, network });
   const psbt = new bitcoin.Psbt({ network });
   const utxos = await retrieveUtxos(source_address);
@@ -124,19 +123,18 @@ async function signTransaction(
         ECPair.fromPublicKey(pubkey).verify(msghash, sig),
       signer.publicKey
     );
+
     return psbt_obj.toBase64();
   } catch (err) {
     throw err;
   }
 }
 
-async function validateAllSignaturesCompleted(psbt: string) {
+async function validateAllSignaturesCompleted(psbt: string): Promise<boolean> {
   try {
     const psbt_obj = bitcoin.Psbt.fromBase64(psbt);
-    return psbt_obj.validateSignaturesOfAllInputs(
-      (pubkey, msghash, sig): boolean =>
-        ECPair.fromPublicKey(pubkey).verify(msghash, sig)
-    );
+    if (psbt_obj.data.inputs[0].partialSig === undefined) return false;
+    return psbt_obj.data.inputs[0].partialSig.length >= 2;
   } catch (err) {
     throw err;
   }
@@ -162,9 +160,11 @@ async function broadcastTransaction(signed_psbt: string) {
       }
     )
       .then((res) => {
+        console.log(res);
         return res.json();
       })
       .then((res) => {
+        console.log(res);
         return res;
       });
   } catch (err) {

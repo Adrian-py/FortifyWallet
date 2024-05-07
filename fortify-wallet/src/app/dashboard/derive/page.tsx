@@ -52,7 +52,7 @@ export default function DerivePage() {
         if (res.status == 200) {
           setAccounts(
             (await res.json()).accounts.filter(
-              (account: any) => account.username !== "admin"
+              (account: any) => account.role_name === "member"
             )
           );
         } else {

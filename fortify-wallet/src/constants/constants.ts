@@ -5,3 +5,5 @@ export const CREATE_ACCOUNTS_PAGE_URL = "/dashboard/accounts/create";
 export const DERIVE_WALLET_PAGE_URL = "/dashboard/derive";
 export const DEPARTMENTS_PAGE_URL = "/dashboard/departments";
 export const CREATE_DEPARTMENT_PAGE_URL = "/dashboard/departments/create";
+export const TRANSACTIONS_PAGE_URL = "/dashboard/transactions";
+export const SIGN_TRANSCATION_PAGE_URL = "/dashboard/transactions/sign";

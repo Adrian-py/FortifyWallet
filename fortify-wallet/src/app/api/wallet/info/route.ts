@@ -5,6 +5,7 @@ const BACKEND_URL =
   process.env.NEXT_PUBLIC_BACKEND_URL ?? "http://localhost:5000";
 
 export async function GET(req: NextRequest) {
+  const address = req.nextUrl.searchParams.get("address");
   const cookie = cookies().get("access_token")?.value;
   if (!cookie)
     return new NextResponse(
@@ -13,8 +14,6 @@ export async function GET(req: NextRequest) {
         status: 200,
       }
     );
-
-  const address = req.nextUrl.searchParams.get("address");
 
   try {
     return await fetch(BACKEND_URL + "/wallet/info/" + address, {

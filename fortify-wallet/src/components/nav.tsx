@@ -2,6 +2,7 @@ import {
   DASHBOARD_PAGE_URL,
   ACCOUNTS_PAGE_URL,
   DEPARTMENTS_PAGE_URL,
+  TRANSACTIONS_PAGE_URL,
 } from "@/constants/constants";
 
 export default function Navbar() {
@@ -33,6 +34,12 @@ export default function Navbar() {
           Departments
         </a>
       )}
+      <a
+        href={TRANSACTIONS_PAGE_URL}
+        className="px-[1.5rem] py-[0.4rem] bg-slate-100 rounded-xl hover:bg-gray-200 transition-all duration-150"
+      >
+        Transactions
+      </a>
     </nav>
   );
 }

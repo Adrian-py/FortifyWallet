@@ -8,6 +8,11 @@ interface TransactionInterface {
   num_of_needed_signatures?: number;
   value?: number;
   pending?: number;
+  broadcasted?: number;
 }
 
-export default TransactionInterface;
+interface RetrieveTranscationInterface extends TransactionInterface {
+  approved: number;
+}
+
+export { TransactionInterface, RetrieveTranscationInterface };
