@@ -1,18 +1,7 @@
 import { MysqlError } from "mysql";
 
 import { db_connection } from "@db/init";
-
-interface authorizationToken {
-  token_id: number;
-  account_id: string;
-  token: string;
-}
-
-interface refreshToken {
-  token_id: number;
-  account_id: string;
-  token: string;
-}
+import { AuthorizationToken, RefreshToken } from "@interfaces/authInterface";
 
 async function saveAuthorizationCode(account_id: string, token: string) {
   const SAVE_TOKEN_QUERY = `INSERT INTO authorization_codes (account_id, authorization_code) VALUES (${account_id}, '${token}')`;
@@ -28,12 +17,12 @@ async function saveAuthorizationCode(account_id: string, token: string) {
 
 async function retrieveAuthorizationCode(
   token: string
-): Promise<authorizationToken[]> {
+): Promise<AuthorizationToken[]> {
   const RETRIEVE_TOKEN_QUERY = `SELECT * FROM authorization_codes WHERE authorization_code = '${token}'`;
   return new Promise((resolve, reject) => {
     db_connection.query(
       RETRIEVE_TOKEN_QUERY,
-      (err: MysqlError, res: authorizationToken[]) => {
+      (err: MysqlError, res: AuthorizationToken[]) => {
         if (err) reject(err);
 
         resolve(res);
@@ -68,12 +57,12 @@ async function saveRefreshToken(account_id: string, refresh_token: string) {
 
 async function retrieveRefreshToken(
   account_id: string
-): Promise<refreshToken[]> {
+): Promise<RefreshToken[]> {
   const RETRIEVE_REFRESH_TOKEN_QUERY = `SELECT * FROM tokens WHERE account_id = ${account_id}`;
   return new Promise((resolve, reject) => {
     db_connection.query(
       RETRIEVE_REFRESH_TOKEN_QUERY,
-      (err: MysqlError, res: refreshToken[]) => {
+      (err: MysqlError, res: RefreshToken[]) => {
         if (err) reject(err);
 
         resolve(res);

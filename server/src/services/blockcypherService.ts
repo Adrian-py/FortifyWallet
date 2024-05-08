@@ -24,6 +24,7 @@ async function retrieveWalletInfo(address: string) {
         return res.json();
       })
       .then((res) => {
+        console.log(res);
         return res;
       });
   } catch (err) {
@@ -160,11 +161,9 @@ async function broadcastTransaction(signed_psbt: string) {
       }
     )
       .then((res) => {
-        console.log(res);
         return res.json();
       })
       .then((res) => {
-        console.log(res);
         return res;
       });
   } catch (err) {

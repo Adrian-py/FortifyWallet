@@ -13,6 +13,7 @@ import {
 import { retrieveRoleId } from "@services/roleService";
 import { checkIfDepartmentAlreadyHasHead } from "@services/departmentService";
 import { deriveWallet } from "@services/walletService";
+import { validateUserCredentials } from "@utils/authUtils";
 
 const app = express.Router();
 
@@ -31,11 +32,13 @@ app.get("/retrieve", async (req, res) => {
     const { department_id } = await getAccountDepartment(account.account_id);
     const accounts = await retrieveDepartmentMembers(department_id);
     return res.status(200).json({ status: 200, accounts });
-  } catch (err) {
+  } catch (err: any) {
     console.error(err);
-    return res
-      .status(500)
-      .json({ message: "Something went wrong in the server!" });
+    return res.status(500).json({
+      status: 500,
+      message: "Something went wrong in the server!",
+      error: err.message,
+    });
   }
 });
 
@@ -51,6 +54,13 @@ app.post("/create", async (req, res) => {
       role_id: await retrieveRoleId(req.body.new_account.role),
       department_id: req.body.new_account.department_id,
     };
+
+    // Validate User Credentials
+    validateUserCredentials(
+      req.body.new_account.username,
+      req.body.new_account.email,
+      req.body.new_account.password
+    );
 
     // If creator is a department head, assign the new account to the same department
     if (creator_account.role === "head")
@@ -89,10 +99,10 @@ app.post("/create", async (req, res) => {
           .json({ status: 200, message: "Account created!" });
       });
   } catch (err: any) {
-    console.log(err);
     return res.status(500).json({
       status: 500,
       message: "Error: Something went wrong when creating account!",
+      error: err.message,
     });
   }
 });

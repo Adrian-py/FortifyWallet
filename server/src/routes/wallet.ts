@@ -6,6 +6,7 @@ import {
   retrieveAllDepartmentWallets,
   retrieveAllWallets,
   retrieveWalletByAccountId,
+  retrieveWalletByAddress,
 } from "@services/walletService";
 import {
   getAccountDepartment,
@@ -90,10 +91,12 @@ app.get("/info/:address", async (req, res) => {
       });
 
     const wallet_info = await retrieveWalletInfo(address);
+    const wallet_owner = (await retrieveWalletByAddress(address)).account_id;
 
     return res.status(200).json({
       status: 200,
       message: "Successfully retrieved wallet information",
+      owner: wallet_owner,
       wallet_info: wallet_info,
     });
   } catch (err: any) {

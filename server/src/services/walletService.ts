@@ -38,7 +38,6 @@ async function getMultisigPubKeys(
       )
     );
   multisig_pubkeys.push(Buffer.from(await retrieveMasterPublicKey(), "hex"));
-  console.log(public_key, account_id, account_role, multisig_pubkeys);
   return multisig_pubkeys;
 }
 

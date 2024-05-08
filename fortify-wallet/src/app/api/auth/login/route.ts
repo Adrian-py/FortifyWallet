@@ -22,12 +22,10 @@ export async function POST(req: NextRequest) {
       body: JSON.stringify({ username, password }),
     })
       .then((res) => {
-        if (res.status != 200) {
-          throw { message: "Invalid username or password" };
-        }
         return res.json();
       })
       .then(async (res) => {
+        if (res.status !== 200) throw new Error(res.error);
         // Using the authorization code to get the access token
         const response = await getAccessToken(res.authorization_code);
         cookies().set("access_token", response.access_token);
@@ -35,10 +33,9 @@ export async function POST(req: NextRequest) {
         account_info.role = response.account.role;
       });
 
-    // Encrypt account data before sending it back to the client
-
     return new NextResponse(
       JSON.stringify({
+        status: 200,
         message: "Authorized!",
         account: JSON.stringify(account_info),
       }),
@@ -46,10 +43,13 @@ export async function POST(req: NextRequest) {
         status: 200,
       }
     );
-  } catch (err) {
-    console.log(err);
+  } catch (err: any) {
     return new NextResponse(
-      "Error: Something wen't wrong whilst trying to log you in",
+      JSON.stringify({
+        status: 500,
+        message: "Unauthorized!",
+        error: err.message,
+      }),
       { status: 500 }
     );
   }

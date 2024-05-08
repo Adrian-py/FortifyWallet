@@ -53,7 +53,6 @@ async function getAccountDepartment(
   const DEPARTMENT_QUERY = `SELECT department_name, department_id FROM departments WHERE department_id = (SELECT department_id FROM accounts WHERE account_id = ${account_id})`;
   return new Promise((resolve, reject) => {
     db_connection.query(DEPARTMENT_QUERY, (err: MysqlError, res: any) => {
-      // console.log(err, res);
       if (err) reject(err);
       resolve(res[0]);
     });

@@ -5,34 +5,7 @@ import { usePathname } from "next/navigation";
 
 import { DASHBOARD_PAGE_URL } from "@/constants/constants";
 import Loading from "@/components/loading";
-
-const dummyData = {
-  address: "mqToiL4VDRFpD9cQ3JmWCoRgG8EscmakG4",
-  total_received: 18952,
-  total_sent: 0,
-  balance: 18952,
-  unconfirmed_balance: 0,
-  final_balance: 18952,
-  n_tx: 1,
-  unconfirmed_n_tx: 0,
-  final_n_tx: 1,
-  txrefs: [
-    {
-      tx_hash:
-        "ae83e747a1ed27e9c1f3c495e5a1d5f889d8139b31325068a3a766abf26737e7",
-      block_height: 2810735,
-      tx_input_n: -1,
-      tx_output_n: 1,
-      value: 18952,
-      ref_balance: 18952,
-      spent: false,
-      confirmations: 3,
-      confirmed: "2024-05-02T13:00:20Z",
-      double_spend: false,
-    },
-  ],
-  tx_url: "https://api.blockcypher.com/v1/btc/test3/txs/",
-};
+import TransactionComponent from "@/components/transaction";
 
 export default function WalletDetailPage({
   params,
@@ -40,6 +13,8 @@ export default function WalletDetailPage({
   params: { address: string };
 }) {
   const path_name = usePathname();
+  const account = JSON.parse(localStorage.getItem("account") ?? "{}");
+  const [walletOwner, setWalletOwner] = useState<string>("");
   const [walletInfo, setWalletInfo] = useState<any>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
@@ -62,6 +37,7 @@ export default function WalletDetailPage({
         })
         .then((res) => {
           if (res.status !== 200) throw new Error(res.error);
+          setWalletOwner(res.owner);
           setWalletInfo(res.wallet_info);
           setLoading(false);
         });
@@ -69,15 +45,6 @@ export default function WalletDetailPage({
       setLoading(false);
       alert(err);
     }
-  };
-
-  const formatDate = (date: string): string => {
-    const currentDate = new Date();
-    const confirmedDate = new Date(date);
-    const diffInDays = Math.floor(
-      (currentDate.getTime() - confirmedDate.getTime()) / (1000 * 3600 * 24)
-    );
-    return `${diffInDays} days ago`;
   };
 
   return (
@@ -127,54 +94,46 @@ export default function WalletDetailPage({
                 <span className="text-sm text-slate-400">BTC</span>
               </h3>
             </div>
-            <a
-              className="w-fit h-fit px-[1.5rem] py-[0.5rem] bg-red-400 text-white rounded-md flex gap-[0.5rem] hover:scale-[1.05] transition-all duration-150"
-              href={path_name + "/transfer"}
-            >
-              <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-                className="w-5 "
+            {account.account_id === walletOwner && (
+              <a
+                className="w-fit h-fit px-[1.5rem] py-[0.5rem] bg-red-400 text-white rounded-md flex gap-[0.5rem] hover:scale-[1.05] transition-all duration-150"
+                href={path_name + "/transfer"}
               >
-                <path
-                  d="M10.4995 13.5001L20.9995 3.00005M10.6271 13.8281L13.2552 20.5861C13.4867 21.1815 13.6025 21.4791 13.7693 21.566C13.9139 21.6414 14.0862 21.6415 14.2308 21.5663C14.3977 21.4796 14.5139 21.1821 14.7461 20.587L21.3364 3.69925C21.5461 3.16207 21.6509 2.89348 21.5935 2.72185C21.5437 2.5728 21.4268 2.45583 21.2777 2.40604C21.1061 2.34871 20.8375 2.45352 20.3003 2.66315L3.41258 9.25349C2.8175 9.48572 2.51997 9.60183 2.43326 9.76873C2.35809 9.91342 2.35819 10.0857 2.43353 10.2303C2.52043 10.3971 2.81811 10.5128 3.41345 10.7444L10.1715 13.3725C10.2923 13.4195 10.3527 13.443 10.4036 13.4793C10.4487 13.5114 10.4881 13.5509 10.5203 13.596C10.5566 13.6468 10.5801 13.7073 10.6271 13.8281Z"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-              Transfer Funds
-            </a>
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="w-5 "
+                >
+                  <path
+                    d="M10.4995 13.5001L20.9995 3.00005M10.6271 13.8281L13.2552 20.5861C13.4867 21.1815 13.6025 21.4791 13.7693 21.566C13.9139 21.6414 14.0862 21.6415 14.2308 21.5663C14.3977 21.4796 14.5139 21.1821 14.7461 20.587L21.3364 3.69925C21.5461 3.16207 21.6509 2.89348 21.5935 2.72185C21.5437 2.5728 21.4268 2.45583 21.2777 2.40604C21.1061 2.34871 20.8375 2.45352 20.3003 2.66315L3.41258 9.25349C2.8175 9.48572 2.51997 9.60183 2.43326 9.76873C2.35809 9.91342 2.35819 10.0857 2.43353 10.2303C2.52043 10.3971 2.81811 10.5128 3.41345 10.7444L10.1715 13.3725C10.2923 13.4195 10.3527 13.443 10.4036 13.4793C10.4487 13.5114 10.4881 13.5509 10.5203 13.596C10.5566 13.6468 10.5801 13.7073 10.6271 13.8281Z"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+                Transfer Funds
+              </a>
+            )}
           </div>
 
           <div className="">
             <h3 className="mb-8 text-xl font-bold">Transactions</h3>
             <div className="w-full flex flex-col gap-[1rem]">
-              {walletInfo.txrefs?.map((tx: any, ind: number) => (
-                <div
+              {walletInfo.unconfirmed_txrefs?.map((tx: any, ind: number) => (
+                <TransactionComponent
                   key={ind}
-                  className="w-full px-[1.5rem] py-[0.75rem] border-[1px] border-slate-100 rounded-lg hover:bg-slate-100 transition-all duration-150 "
-                >
-                  <div className="w-full flex justify-between font-bold">
-                    <p
-                      className={
-                        tx.tx_input_n === -1 ? "text-green-600" : "text-red-600"
-                      }
-                    >
-                      {tx.tx_input_n === -1 ? "Received" : "Sent"}
-                    </p>
-                    <p className="">{tx.value / 100000000} BTC</p>
-                  </div>
-                  <div className="w-full flex justify-between text-slate-400">
-                    <p className="text-sm">{formatDate(tx.confirmed)}</p>
-                    <p className="text-xs">
-                      Transaction Hash:{" "}
-                      <span className="font-bold">{tx.tx_hash}</span>
-                    </p>
-                  </div>
-                </div>
+                  transaction={tx}
+                  unconfirmed={true}
+                />
+              ))}
+              {walletInfo.txrefs?.map((tx: any, ind: number) => (
+                <TransactionComponent
+                  key={ind}
+                  transaction={tx}
+                  unconfirmed={false}
+                />
               ))}
             </div>
           </div>

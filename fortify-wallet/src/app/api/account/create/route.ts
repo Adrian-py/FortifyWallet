@@ -22,15 +22,16 @@ export async function POST(req: NextRequest) {
       return res.json();
     })
     .then((res) => {
-      if (res.status !== 200) {
-        throw new Error(res.message);
-      }
+      if (res.status !== 200) throw new Error(res.error);
       return new NextResponse(
         JSON.stringify({ message: "Successfully Created User!" }),
         { status: 200 }
       );
     })
     .catch((err) => {
-      return new NextResponse(JSON.stringify(err.message), { status: 500 });
+      return new NextResponse(
+        JSON.stringify({ status: 500, error: err.message }),
+        { status: 500 }
+      );
     });
 }

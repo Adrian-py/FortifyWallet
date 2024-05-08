@@ -49,6 +49,7 @@
     "@interfaces": "src/interfaces",
     "@routes": "src/routes",
     "@services": "src/services",
-    "@middleware": "src/middleware"
+    "@middleware": "src/middleware",
+    "@utils": "src/utils"
   }
 }

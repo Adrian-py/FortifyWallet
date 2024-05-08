@@ -42,19 +42,16 @@ export default function CreateUserPage() {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ new_account: newAccount }),
-    })
-      .then(async (res) => {
-        if (res.status == 200) {
-          alert("Account created!");
-          router.push(ACCOUNTS_PAGE_URL);
-        } else {
-          const error_message = await res.json();
-          alert(error_message);
-        }
-      })
-      .catch((error) => {
-        console.error(error);
-      });
+    }).then(async (res) => {
+      if (res.status == 200) {
+        alert("Account created!");
+        router.push(ACCOUNTS_PAGE_URL);
+      } else {
+        const error_message = await res.json();
+        console.log(error_message);
+        alert(error_message.error);
+      }
+    });
   };
 
   const handleRetrieveDepartments = async () => {

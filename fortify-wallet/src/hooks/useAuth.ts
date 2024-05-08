@@ -32,10 +32,9 @@ export default function useAuth() {
         return res.json();
       })
       .then((res) => {
-        if (res.message === "Authorized!") {
-          localStorage.setItem("account", res.account);
-          router.push(DASHBOARD_PAGE_URL);
-        }
+        if (res.status !== 200) throw new Error(res.error);
+        localStorage.setItem("account", res.account);
+        router.push(DASHBOARD_PAGE_URL);
       });
   }
 
