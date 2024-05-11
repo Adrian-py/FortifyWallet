@@ -21,6 +21,7 @@ app.post("/create", async (req, res) => {
       .status(200)
       .json({ message: "Successfully created department!" });
   } catch (err: any) {
+    console.error(err);
     return res.status(500).json({
       message:
         "Error: Something wen't wrong when trying to create a department",

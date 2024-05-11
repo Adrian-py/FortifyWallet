@@ -26,8 +26,8 @@ import {
   retrieveActiveTransactionsByWalletAddress,
   updateTransactionBroadcastStatus,
 } from "@services/transactionService";
-import { TransactionInterface } from "@interfaces/transactionInterface";
 import { saveTransactionApproval } from "@services/transactionApprovalService";
+import { TransactionInterface } from "@interfaces/transactionInterface";
 
 const app = express.Router();
 
@@ -47,20 +47,29 @@ app.get("/retrieve", async (req, res) => {
 });
 
 app.get("/retrieve/:txid", async (req, res) => {
-  const { txid } = req.params;
+  try {
+    const { txid } = req.params;
 
-  const transaction = await retrieveTransactionByTransactionId(txid);
-  if (!transaction)
-    return res.status(404).json({
-      status: 404,
-      message: "Transaction not found!",
+    const transaction = await retrieveTransactionByTransactionId(txid);
+    if (!transaction)
+      return res.status(404).json({
+        status: 404,
+        message: "Transaction not found!",
+      });
+
+    return res.status(200).json({
+      status: 200,
+      message: "Transaction data retrieved successfully!",
+      transaction: transaction,
     });
-
-  return res.status(200).json({
-    status: 200,
-    message: "Transaction data retrieved successfully!",
-    transaction: transaction,
-  });
+  } catch (err: any) {
+    console.error(err);
+    return res.status(500).json({
+      status: 500,
+      message: "Error retrieving transaction data!",
+      error: err.message,
+    });
+  }
 });
 
 app.post("/transfer", async (req, res) => {

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 
 const BACKEND_URL =
-  process.env.NEXT_PUBLIC_BACKEND_URL ?? "http://localhost:5000";
+  process.env.NEXT_PUBLIC_BACKEND_URL ?? "https://localhost:5000";
 
 export async function POST(req: NextRequest) {
   const { username, password } = await req.json();

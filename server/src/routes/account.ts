@@ -99,6 +99,7 @@ app.post("/create", async (req, res) => {
           .json({ status: 200, message: "Account created!" });
       });
   } catch (err: any) {
+    console.error(err);
     return res.status(500).json({
       status: 500,
       message: "Error: Something went wrong when creating account!",

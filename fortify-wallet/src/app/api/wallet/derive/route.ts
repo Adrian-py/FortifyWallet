@@ -31,7 +31,6 @@ export async function POST(req: NextRequest) {
       });
     })
     .catch((err) => {
-      console.log(err);
       return new NextResponse(JSON.stringify(err.message), { status: 500 });
     });
 }

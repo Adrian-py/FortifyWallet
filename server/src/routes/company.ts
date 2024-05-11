@@ -35,7 +35,7 @@ app.post("/onboarding", async (req, res) => {
       message: "Successfully Saved Company Details",
     });
   } catch (err: any) {
-    console.error("Error: " + err.sqlMessage);
+    console.error(err);
     res.status(500).json({
       code: 500,
       message: "Error: Failed to Save Company Details",
@@ -58,7 +58,7 @@ app.get("/verify", async (_req, res) => {
       message: "Successfully Verified Company Detail",
     });
   } catch (err: any) {
-    console.error("Error: " + err.sqlMessage);
+    console.error(err);
     res.status(500).json({
       code: 500,
       message: "Error: Failed to Retrieve Company Details",

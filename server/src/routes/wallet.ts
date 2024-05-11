@@ -63,7 +63,7 @@ app.post("/retrieve", async (req, res) => {
 
     return res.status(200).json({ status: 200, wallet });
   } catch (err) {
-    console.log(err);
+    console.error(err);
     return res.status(500).json({
       status: 500,
       message:
@@ -100,7 +100,7 @@ app.get("/info/:address", async (req, res) => {
       wallet_info: wallet_info,
     });
   } catch (err: any) {
-    console.log(err);
+    console.error(err);
     return res.status(500).json({
       status: 500,
       message:

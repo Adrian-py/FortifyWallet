@@ -4,6 +4,8 @@ import cors from "cors";
 import "dotenv/config";
 import cookieParser from "cookie-parser";
 import path from "path";
+import https from "https";
+import fs from "fs";
 
 import auth from "@routes/auth";
 import company from "@routes/company";
@@ -30,10 +32,15 @@ app.use("/transactions", transactions);
 app.use("/accounts", account);
 app.use("/departments", department);
 
+const httpsOptions = {
+  key: fs.readFileSync(path.join(__dirname, "../cert/server.key")),
+  cert: fs.readFileSync(path.join(__dirname, "../cert/server.cert")),
+};
+
 // Initiate Server and Database
 connectToDatabase()
   .then(() => {
-    app.listen(PORT, () => {
+    https.createServer(httpsOptions, app).listen(PORT, () => {
       console.log("Connected to PORT " + PORT);
     });
   })
