@@ -105,7 +105,9 @@ async function retrieveTransactionsByInitiatorId(
   initiator_id: string
 ): Promise<TransactionInterface[]> {
   const TRANSACTION_QUERY = `
-        SELECT * FROM transactions WHERE initiator_id = ${initiator_id}
+        SELECT accounts.username as initiator_username, transactions.transaction_id, transactions.initiator_id, transactions.recipient, transactions.sender, transactions.psbt, transactions.value, transactions.num_signatures, transactions.num_of_needed_signatures, transactions.pending FROM transactions
+        INNER JOIN accounts ON accounts.account_id = transactions.initiator_id
+        WHERE initiator_id = ${initiator_id} 
     `;
   return new Promise((resolve, reject) => {
     db_connection.query(

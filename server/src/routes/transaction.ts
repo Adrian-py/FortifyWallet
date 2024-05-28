@@ -2,7 +2,10 @@ import express from "express";
 import jwt, { JwtPayload } from "jsonwebtoken";
 
 import tokenMiddleware from "@middleware/tokenMiddleware";
-import { hasPrivilegeToTransfer } from "@services/accountService";
+import {
+  getAccountDepartment,
+  hasPrivilegeToTransfer,
+} from "@services/accountService";
 import { checkPassword } from "@utils/authUtils";
 import {
   derivePrivateKey,
@@ -26,6 +29,8 @@ import {
   updateTransactionStatus,
   retrieveActiveTransactionsByWalletAddress,
   updateTransactionBroadcastStatus,
+  retrieveTransactionsByInitiatorId,
+  retrieveTransactionsByDepartment,
 } from "@services/transactionService";
 import { saveTransactionApproval } from "@services/transactionApprovalService";
 import { TransactionInterface } from "@interfaces/transactionInterface";
@@ -39,7 +44,19 @@ app.get("/retrieve", async (req, res) => {
   const account = jwt.decode(access_token) as JwtPayload;
 
   let transactions: any[] = [];
-  transactions = await retrieveAllTransactions(account.account_id);
+  if (account.role === "admin") {
+    // if is admin, retrieve all transactions
+    transactions = await retrieveAllTransactions(account.account_id);
+  } else if (account.role === "head") {
+    // if is head, retrieve all transactions from the department
+    const account_department = await getAccountDepartment(account.account_id);
+    transactions = await retrieveTransactionsByDepartment(
+      account_department.department_id
+    );
+  } else {
+    // if is members, retrieve only their own transactions
+    transactions = await retrieveTransactionsByInitiatorId(account.account_id);
+  }
   return res.status(200).json({
     status: 200,
     message: "Transactions retrieved successfully!",

@@ -42,7 +42,7 @@ export default function TranscationsPage() {
           {transactions.map((transaction, ind) => (
             <tr
               key={ind}
-              className="px-[1rem] py-2 hover:bg-slate-100 transition-all duration-150 rounded-lg"
+              className="px-[1rem] py-2 hover:bg-slate-100 transition-all duration-150 rounded-lg cursor-pointer"
               onClick={() =>
                 router.push(
                   TRANSCATION_DETAIL_PAGE_URL + "/" + transaction.transaction_id
