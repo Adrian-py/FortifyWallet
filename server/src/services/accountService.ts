@@ -47,6 +47,23 @@ async function retrieveAccount(username: string): Promise<userInterface[]> {
   });
 }
 
+async function retrieveAccountById(
+  account_id: string
+): Promise<userInterface[]> {
+  const RETRIEVE_USER_QUERY = `SELECT account_id, username, password FROM accounts WHERE account_id = ${account_id}`;
+  return new Promise((resolve, reject) => {
+    db_connection.query(
+      RETRIEVE_USER_QUERY,
+      (err: MysqlError, result: userInterface[]) => {
+        if (err) {
+          reject(err);
+        }
+        resolve(result);
+      }
+    );
+  });
+}
+
 async function getAccountDepartment(
   account_id: string
 ): Promise<departmentInterface> {
@@ -128,9 +145,14 @@ async function hasPrivilegeToTransfer(
   return account_id === wallet.account_id;
 }
 
+async function updateAccount() {
+  // TODO
+}
+
 export {
   createAccount,
   retrieveAccount,
+  retrieveAccountById,
   retrieveAllAccounts,
   getAccountDepartment,
   getAccountRole,

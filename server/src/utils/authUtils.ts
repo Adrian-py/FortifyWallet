@@ -1,3 +1,6 @@
+import { retrieveAccountById } from "@services/accountService";
+import bcrypt from "bcrypt";
+
 function validateUserCredentials(
   username: string,
   email: string,
@@ -22,4 +25,19 @@ function validateUserCredentials(
     throw new Error("Password must contain at least one uppercase letter!");
 }
 
-export { validateUserCredentials };
+async function checkPassword(
+  account_id: string,
+  password: string
+): Promise<boolean> {
+  const account = await retrieveAccountById(account_id);
+  if (account.length === 0) return false;
+
+  const match_password = await bcrypt.compare(
+    password,
+    account[0].password ?? ""
+  );
+
+  return match_password;
+}
+
+export { validateUserCredentials, checkPassword };

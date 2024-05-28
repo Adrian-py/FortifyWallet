@@ -1,6 +1,6 @@
 import * as bitcoin from "bitcoinjs-lib";
-import { BIP32Interface } from "bip32";
 import * as ecc from "tiny-secp256k1";
+import { BIP32Interface } from "bip32";
 import ECPairFactory from "ecpair";
 
 const ECPair = ECPairFactory(ecc);

@@ -16,7 +16,7 @@ import {
 } from "@services/accountService";
 import tokenMiddleware from "@middleware/tokenMiddleware";
 import roleMiddleware from "@middleware/roleMiddleware";
-import { retrieveWalletInfo } from "@services/blockcypherService";
+import { retrieveWalletInfo } from "@services/blockchainService";
 
 const app = express.Router();
 

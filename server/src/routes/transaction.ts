@@ -3,6 +3,7 @@ import jwt, { JwtPayload } from "jsonwebtoken";
 
 import tokenMiddleware from "@middleware/tokenMiddleware";
 import { hasPrivilegeToTransfer } from "@services/accountService";
+import { checkPassword } from "@utils/authUtils";
 import {
   derivePrivateKey,
   getMultisigPubKeys,
@@ -15,7 +16,7 @@ import {
   createTransaction,
   signTransaction,
   validateAllSignaturesCompleted,
-} from "@services/blockcypherService";
+} from "@services/blockchainService";
 import {
   retrieveAllTransactions,
   retrieveTransactionsByWalletAddress,
@@ -150,9 +151,17 @@ app.post("/transfer", async (req, res) => {
 });
 
 app.post("/sign", async (req, res) => {
-  const { transaction_id, sender_address } = req.body;
+  const { password, transaction_id, sender_address } = req.body;
   const access_token = req.cookies.access_token;
   const account = jwt.decode(access_token) as JwtPayload;
+
+  // Check if password is correct
+  if (!(await checkPassword(account.account_id, password))) {
+    return res.status(401).json({
+      status: 401,
+      message: "Incorrect password!",
+    });
+  }
 
   let signer_wallet;
 
@@ -200,7 +209,18 @@ app.post("/sign", async (req, res) => {
 });
 
 app.post("/broadcast", async (req, res) => {
-  const { transaction_id } = req.body;
+  const { password, transaction_id } = req.body;
+  const access_token = req.cookies.access_token;
+  const account = jwt.decode(access_token) as JwtPayload;
+
+  // Check if password is correct
+  if (!(await checkPassword(account.account_id, password))) {
+    return res.status(401).json({
+      status: 401,
+      message: "Incorrect password!",
+    });
+  }
+
   try {
     const signed_psbt = (
       await retrieveTransactionByTransactionId(transaction_id)

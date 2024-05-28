@@ -5,10 +5,16 @@ const BACKEND_URL =
   process.env.NEXT_PUBLIC_BACKEND_URL ?? "http://localhost:5000";
 
 export async function POST(req: NextRequest) {
-  const txid = req.nextUrl.searchParams.get("txid");
+  const { password, txid } = await req.json();
   if (!txid)
     return new NextResponse(
       JSON.stringify({ status: 400, message: "Transaction ID not provided!" }),
+      { status: 400 }
+    );
+
+  if (!password)
+    return new NextResponse(
+      JSON.stringify({ status: 400, message: "Password not provided!" }),
       { status: 400 }
     );
 
@@ -26,7 +32,7 @@ export async function POST(req: NextRequest) {
         "Content-Type": "application/json",
         Cookie: "access_token=" + access_token,
       },
-      body: JSON.stringify({ transaction_id: txid }),
+      body: JSON.stringify({ password: password, transaction_id: txid }),
     })
       .then((res) => {
         return res.json();
