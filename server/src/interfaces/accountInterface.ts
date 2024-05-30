@@ -5,6 +5,8 @@ interface userInterface {
   password?: string;
   role_id: Number;
   department_id?: Number;
+  role_name?: string;
+  department_name?: string;
 }
 
 export default userInterface;

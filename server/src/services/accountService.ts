@@ -47,6 +47,23 @@ async function retrieveAccount(username: string): Promise<userInterface[]> {
   });
 }
 
+async function retrieveAccountInfo(
+  account_id: string
+): Promise<userInterface[]> {
+  const RETRIEVE_USER_QUERY = `SELECT account_id, username, email, roles.role_name, departments.department_name FROM accounts INNER JOIN roles ON accounts.role_id = roles.role_id LEFT JOIN departments ON accounts.department_id = departments.department_id WHERE account_id = ${account_id}`;
+  return new Promise((resolve, reject) => {
+    db_connection.query(
+      RETRIEVE_USER_QUERY,
+      (err: MysqlError, result: userInterface[]) => {
+        if (err) {
+          reject(err);
+        }
+        resolve(result);
+      }
+    );
+  });
+}
+
 async function retrieveAccountById(
   account_id: string
 ): Promise<userInterface[]> {
@@ -152,6 +169,7 @@ async function updateAccount() {
 export {
   createAccount,
   retrieveAccount,
+  retrieveAccountInfo,
   retrieveAccountById,
   retrieveAllAccounts,
   getAccountDepartment,

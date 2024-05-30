@@ -9,7 +9,7 @@ export async function GET(req: NextRequest) {
     return new NextResponse("Not Authorized!", { status: 401 });
 
   try {
-    return await fetch(BACKEND_URL + "/accounts/retrieve", {
+    return await fetch(BACKEND_URL + "/accounts/info", {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -18,15 +18,21 @@ export async function GET(req: NextRequest) {
       cache: "no-cache",
     })
       .then((res) => {
-        if (res.status == 401) throw new Error("Not Authorized!");
         return res.json();
       })
       .then((res) => {
-        return new NextResponse(JSON.stringify(res), {
-          status: 200,
-        });
+        if (res.status == 401) throw new Error("Not Authorized!");
+        return new NextResponse(
+          JSON.stringify({ status: 200, account: res.account }),
+          {
+            status: 200,
+          }
+        );
       });
-  } catch (err: any) {
-    return new NextResponse(err.message, { status: 500 });
+  } catch (err) {
+    return new NextResponse(
+      JSON.stringify({ status: 500, message: "Internal Server Error!" }),
+      { status: 500 }
+    );
   }
 }

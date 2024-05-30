@@ -9,6 +9,7 @@ import {
   retrieveAllAccounts,
   retrieveDepartmentMembers,
   getAccountDepartment,
+  retrieveAccountInfo,
 } from "@services/accountService";
 import { retrieveRoleId } from "@services/roleService";
 import { checkIfDepartmentAlreadyHasHead } from "@services/departmentService";
@@ -106,6 +107,23 @@ app.post("/create", async (req, res) => {
       error: err.message,
     });
   }
+});
+
+app.get("/info", async (req, res) => {
+  const access_token = req.cookies.access_token;
+  const account = jwt.decode(access_token) as JwtPayload;
+
+  const retrieved_account = await retrieveAccountInfo(account.account_id);
+  if (retrieved_account.length === 0)
+    return res.status(404).json({ status: 404, message: "Account not found!" });
+
+  const account_info = {
+    username: retrieved_account[0].username,
+    email: retrieved_account[0].email,
+    role: retrieved_account[0].role_name,
+    department: retrieved_account[0].department_name,
+  };
+  return res.status(200).json({ status: 200, account: account_info });
 });
 
 export default app;

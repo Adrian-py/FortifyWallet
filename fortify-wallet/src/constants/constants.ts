@@ -7,3 +7,4 @@ export const DEPARTMENTS_PAGE_URL = "/dashboard/departments";
 export const CREATE_DEPARTMENT_PAGE_URL = "/dashboard/departments/create";
 export const TRANSACTIONS_PAGE_URL = "/dashboard/transactions";
 export const TRANSCATION_DETAIL_PAGE_URL = "/dashboard/transactions/detail";
+export const PROFILE_PAGE_URL = "/dashboard/profile";
