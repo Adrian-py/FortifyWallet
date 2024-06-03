@@ -22,13 +22,18 @@ export async function GET(req: NextRequest) {
       const returned_access_token = res.headers.get("Set-Cookie");
       if (returned_access_token && returned_access_token != cookie)
         cookies().set("access_token", returned_access_token);
-
       return res.json();
     })
     .then((res) => {
       if (res.status != 200) {
-        return new NextResponse("Not Authorized!", { status: 401 });
+        return new NextResponse(
+          JSON.stringify({ message: "Not Authorized", ...res }),
+          { status: 401 }
+        );
       }
-      return new NextResponse("Authorized!", { status: 200 });
+      return new NextResponse(
+        JSON.stringify({ message: "Authorized", ...res }),
+        { status: 200 }
+      );
     });
 }

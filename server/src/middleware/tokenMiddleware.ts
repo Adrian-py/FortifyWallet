@@ -38,7 +38,12 @@ export default async function tokenMiddleware(
           ); // verify refresh token
 
           const accessToken = jwt.sign(
-            { account_id: account_id, role: account?.role },
+            {
+              account_id: account_id,
+              role: account?.role,
+              enabled_two_factor: account?.enabled_two_factor,
+              verified_2fa: account.verified_2fa,
+            },
             process.env.ACCESS_TOKEN_SECRET ?? "access_token_secret",
             { expiresIn: "30m" }
           );

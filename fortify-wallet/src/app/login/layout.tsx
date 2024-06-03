@@ -14,6 +14,7 @@ export default function LoginLayout({
 
   useEffect(() => {
     const checkAuth = async () => {
+      console.log(await isAuthenticated());
       if (await isAuthenticated()) {
         router.push(DASHBOARD_PAGE_URL);
       }

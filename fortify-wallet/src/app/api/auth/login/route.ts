@@ -13,7 +13,7 @@ export async function POST(req: NextRequest) {
   };
 
   try {
-    await fetch(BACKEND_URL + "/auth/login", {
+    return await fetch(BACKEND_URL + "/auth/login", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -31,18 +31,19 @@ export async function POST(req: NextRequest) {
         cookies().set("access_token", response.access_token);
         account_info.account_id = response.account.account_id;
         account_info.role = response.account.role;
-      });
 
-    return new NextResponse(
-      JSON.stringify({
-        status: 200,
-        message: "Authorized!",
-        account: JSON.stringify(account_info),
-      }),
-      {
-        status: 200,
-      }
-    );
+        return new NextResponse(
+          JSON.stringify({
+            status: 200,
+            message: "Authorized!",
+            account: JSON.stringify(account_info),
+            enabled_two_factor: response.account.enabled_two_factor,
+          }),
+          {
+            status: 200,
+          }
+        );
+      });
   } catch (err: any) {
     return new NextResponse(
       JSON.stringify({

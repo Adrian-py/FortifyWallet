@@ -8,3 +8,5 @@ export const CREATE_DEPARTMENT_PAGE_URL = "/dashboard/departments/create";
 export const TRANSACTIONS_PAGE_URL = "/dashboard/transactions";
 export const TRANSCATION_DETAIL_PAGE_URL = "/dashboard/transactions/detail";
 export const PROFILE_PAGE_URL = "/dashboard/profile";
+export const SETUP_2FA_PAGE_URL = "/2fa/setup";
+export const VERIFY_2FA_PAGE_URL = "/2fa/verify";

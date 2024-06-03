@@ -1,7 +1,11 @@
 import { useRouter } from "next/navigation";
 
-import { DASHBOARD_PAGE_URL, LOGIN_PAGE_URL } from "@/constants/constants";
-import { cookies } from "next/headers";
+import {
+  DASHBOARD_PAGE_URL,
+  LOGIN_PAGE_URL,
+  SETUP_2FA_PAGE_URL,
+  VERIFY_2FA_PAGE_URL,
+} from "@/constants/constants";
 
 export default function useAuth() {
   const router = useRouter();
@@ -14,9 +18,16 @@ export default function useAuth() {
       },
       cache: "no-cache",
       credentials: "include",
-    }).then((res) => {
-      return res.status == 200;
-    });
+    })
+      .then((res) => {
+        if (res.status !== 200) router.push(LOGIN_PAGE_URL);
+        return res.json();
+      })
+      .then((res) => {
+        if (!res.enabled_two_factor) return router.push(SETUP_2FA_PAGE_URL);
+        else if (!res.verified_2fa) return router.push(VERIFY_2FA_PAGE_URL);
+        return res.status === 200;
+      });
   }
 
   async function login(username: string, password: string) {
@@ -34,6 +45,7 @@ export default function useAuth() {
       .then((res) => {
         if (res.status !== 200) throw new Error(res.error);
         localStorage.setItem("account", res.account);
+        if (!res.enabled_two_factor) return router.push(SETUP_2FA_PAGE_URL);
         router.push(DASHBOARD_PAGE_URL);
       });
   }
@@ -79,6 +91,11 @@ export default function useAuth() {
     const account = JSON.parse(localStorage.getItem("account") ?? "{}");
     return account.role;
   }
+
+  // async function hasVerified2FA(): Promise<boolean> {
+  //   const access_token = cookies().get("access_token")?.value;
+  //   console.log(access_token);
+  // }
 
   return {
     checkAuthorization,

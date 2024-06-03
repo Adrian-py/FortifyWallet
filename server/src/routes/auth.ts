@@ -12,7 +12,7 @@ import {
   saveRefreshToken,
 } from "@services/authService";
 import tokenMiddleware from "@middleware/tokenMiddleware";
-import { retrieveAccount, getAccountRole } from "@services/accountService";
+import { retrieveAccount, retrieveAccountInfo } from "@services/accountService";
 
 const app = express.Router();
 
@@ -49,7 +49,7 @@ app.post("/login", async (req, res) => {
     console.error(err);
     return res.status(500).json({
       status: 500,
-      message: "Something went wrong when trying to logddin!",
+      message: "Something went wrong when trying to loggin!",
       err: err,
     });
   }
@@ -90,15 +90,19 @@ app.post("/token", async (req, res) => {
   if (token.length === 0)
     return res.status(400).json({ message: "Invalid authorization code" });
   const account_id = token[0].account_id;
-  const role = await getAccountRole(account_id);
+  const account_details = (await retrieveAccountInfo(account_id))[0]!;
 
   const accessToken = jwt.sign(
-    { account_id: account_id, role: role },
+    {
+      account_id: account_id,
+      role: account_details.role_name,
+      verified_2fa: false,
+    },
     process.env.ACCESS_TOKEN_SECRET ?? "access_token_secret",
     { expiresIn: "30m" }
   );
   const refreshToken = jwt.sign(
-    { account_id: account_id, role: role },
+    { account_id: account_id, role: account_details.role_name },
     process.env.REFRESH_TOKEN_SECRET ?? "refresh_token_secret",
     { expiresIn: "1h" }
   );
@@ -114,12 +118,25 @@ app.post("/token", async (req, res) => {
     status: 200,
     message: "Token sucessfully generated!",
     access_token: accessToken,
-    account: { account_id, role: role },
+    account: {
+      account_id,
+      role: account_details.role_name,
+      enabled_two_factor: account_details.enabled_two_factor,
+    },
   });
 });
 
-app.get("/status", tokenMiddleware, async (_req, res) => {
-  return res.status(200).json({ status: 200, message: "Token is valid!" });
+app.get("/status", tokenMiddleware, async (req, res) => {
+  const access_token = req.cookies.access_token;
+  const account = jwt.decode(access_token) as JwtPayload;
+  const account_details = (await retrieveAccountInfo(account.account_id))[0]!;
+
+  return res.status(200).json({
+    status: 200,
+    message: "Token is valid!",
+    enabled_two_factor: account_details.enabled_two_factor,
+    verified_2fa: account.verified_2fa,
+  });
 });
 
 export default app;

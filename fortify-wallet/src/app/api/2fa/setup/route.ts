@@ -9,7 +9,7 @@ export async function GET(req: NextRequest) {
     return new NextResponse("Not Authorized!", { status: 401 });
 
   try {
-    return await fetch(BACKEND_URL + "/accounts/info", {
+    return await fetch(BACKEND_URL + "/accounts/setup-2fa", {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -21,9 +21,10 @@ export async function GET(req: NextRequest) {
         return res.json();
       })
       .then((res) => {
-        if (res.status !== 200) throw new Error(res.error ?? "Error!");
+        console.log(res);
+        if (res.status !== 200) throw new Error(res.error);
         return new NextResponse(
-          JSON.stringify({ status: 200, account: res.account }),
+          JSON.stringify({ status: 200, two_factor_data: res.two_factor_data }),
           {
             status: 200,
           }

@@ -3,10 +3,11 @@ interface userInterface {
   username: string;
   email: string;
   password?: string;
-  role_id: Number;
-  department_id?: Number;
+  role_id: number;
+  department_id?: number;
   role_name?: string;
   department_name?: string;
+  enabled_two_factor?: number;
 }
 
 export default userInterface;

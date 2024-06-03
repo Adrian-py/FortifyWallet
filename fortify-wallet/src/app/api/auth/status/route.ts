@@ -8,11 +8,11 @@ export async function GET() {
     return new NextResponse(
       JSON.stringify({ status: 401, message: "Not Authorized!" }),
       {
-        status: 200,
+        status: 401,
       }
     );
   return new NextResponse(
-    JSON.stringify({ status: 401, message: "Authorized!" }),
+    JSON.stringify({ status: 200, message: "Authorized!" }),
     { status: 200 }
   );
 }

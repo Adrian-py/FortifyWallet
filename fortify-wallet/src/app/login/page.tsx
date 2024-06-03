@@ -10,20 +10,8 @@ export default function LoginPage() {
   const [password, setPassword] = useState<string>("");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  // const validateInputs = () => {
-  //   if (username.length < 5 || username.length > 10) {
-  //     setErrorMessage("Username needs to be between 5 and 10 characters long!");
-  //     return false;
-  //   }
-  //   if (password.length < 8 || password.length > 20) {
-  //     setErrorMessage("Password needs to be between 8 and 20 characters long!");
-  //     return false;
-  //   }
-  // };
-
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // if (!validateInputs()) return;
     await login(username, password).catch((err) => {
       setErrorMessage(err.message);
     });

@@ -17,6 +17,51 @@ async function createAccount(new_account: userInterface) {
   });
 }
 
+async function saveTwoFactorSecret(account_id: string, secret: string) {
+  const SAVE_TWO_FACTOR_SECRET_QUERY = `UPDATE accounts SET two_factor_secret = '${secret}' WHERE account_id = ${account_id}`;
+  return new Promise((resolve, reject) => {
+    db_connection.query(
+      SAVE_TWO_FACTOR_SECRET_QUERY,
+      (err: MysqlError, res: any) => {
+        if (err) {
+          reject(err);
+        }
+        resolve(res);
+      }
+    );
+  });
+}
+
+async function updateTwoFactorStatus(account_id: string) {
+  const UPDATE_TWO_FACTOR_STATUS_QUERY = `UPDATE accounts SET enabled_two_factor = 1 WHERE account_id = ${account_id}`;
+  return new Promise((resolve, reject) => {
+    db_connection.query(
+      UPDATE_TWO_FACTOR_STATUS_QUERY,
+      (err: MysqlError, res: any) => {
+        if (err) {
+          reject(err);
+        }
+        resolve(res);
+      }
+    );
+  });
+}
+
+async function retrieveTwoFactorSecret(account_id: string): Promise<string> {
+  const RETRIEVE_TWO_FACTOR_SECRET_QUERY = `SELECT two_factor_secret FROM accounts WHERE account_id = ${account_id}`;
+  return new Promise((resolve, reject) => {
+    db_connection.query(
+      RETRIEVE_TWO_FACTOR_SECRET_QUERY,
+      (err: MysqlError, res: any) => {
+        if (err) {
+          reject(err);
+        }
+        resolve(res[0].two_factor_secret);
+      }
+    );
+  });
+}
+
 async function retrieveAllAccounts(): Promise<userInterface[]> {
   const RETRIEVE_ALL_ACCOUNTS_QUERY = `SELECT account_id, username, email, roles.role_name, departments.department_name FROM accounts INNER JOIN roles ON accounts.role_id = roles.role_id INNER JOIN departments ON accounts.department_id = departments.department_id`;
   return new Promise((resolve, reject) => {
@@ -50,7 +95,7 @@ async function retrieveAccount(username: string): Promise<userInterface[]> {
 async function retrieveAccountInfo(
   account_id: string
 ): Promise<userInterface[]> {
-  const RETRIEVE_USER_QUERY = `SELECT account_id, username, email, roles.role_name, departments.department_name FROM accounts INNER JOIN roles ON accounts.role_id = roles.role_id LEFT JOIN departments ON accounts.department_id = departments.department_id WHERE account_id = ${account_id}`;
+  const RETRIEVE_USER_QUERY = `SELECT account_id, username, email, roles.role_name, departments.department_name, enabled_two_factor FROM accounts INNER JOIN roles ON accounts.role_id = roles.role_id LEFT JOIN departments ON accounts.department_id = departments.department_id WHERE account_id = ${account_id}`;
   return new Promise((resolve, reject) => {
     db_connection.query(
       RETRIEVE_USER_QUERY,
@@ -162,12 +207,11 @@ async function hasPrivilegeToTransfer(
   return account_id === wallet.account_id;
 }
 
-async function updateAccount() {
-  // TODO
-}
-
 export {
   createAccount,
+  saveTwoFactorSecret,
+  updateTwoFactorStatus,
+  retrieveTwoFactorSecret,
   retrieveAccount,
   retrieveAccountInfo,
   retrieveAccountById,
