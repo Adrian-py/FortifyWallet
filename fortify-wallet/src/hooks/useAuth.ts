@@ -10,7 +10,7 @@ import {
 export default function useAuth() {
   const router = useRouter();
 
-  async function checkAuthorization(): Promise<boolean> {
+  async function checkAuthorization(): Promise<boolean | void> {
     return await fetch("/api/auth/authorized", {
       method: "GET",
       headers: {
