@@ -10,7 +10,7 @@ import {
 export default function useAuth() {
   const router = useRouter();
 
-  async function checkAuthorization(): Promise<boolean | void> {
+  async function checkAuthorization(): Promise<any> {
     return await fetch("/api/auth/authorized", {
       method: "GET",
       headers: {
@@ -18,16 +18,10 @@ export default function useAuth() {
       },
       cache: "no-cache",
       credentials: "include",
-    })
-      .then((res) => {
-        if (res.status !== 200) router.push(LOGIN_PAGE_URL);
-        return res.json();
-      })
-      .then((res) => {
-        if (!res.enabled_two_factor) return router.push(SETUP_2FA_PAGE_URL);
-        else if (!res.verified_2fa) return router.push(VERIFY_2FA_PAGE_URL);
-        return res.status === 200;
-      });
+    }).then((res) => {
+      if (res.status !== 200) return router.push(LOGIN_PAGE_URL);
+      return res.json();
+    });
   }
 
   async function login(username: string, password: string) {
@@ -91,11 +85,6 @@ export default function useAuth() {
     const account = JSON.parse(localStorage.getItem("account") ?? "{}");
     return account.role;
   }
-
-  // async function hasVerified2FA(): Promise<boolean> {
-  //   const access_token = cookies().get("access_token")?.value;
-  //   console.log(access_token);
-  // }
 
   return {
     checkAuthorization,

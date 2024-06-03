@@ -48,7 +48,6 @@ export default function CreateUserPage() {
         router.push(ACCOUNTS_PAGE_URL);
       } else {
         const error_message = await res.json();
-        console.log(error_message);
         alert(error_message.error);
       }
     });

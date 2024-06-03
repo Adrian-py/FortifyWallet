@@ -21,7 +21,6 @@ export async function GET(req: NextRequest) {
         return res.json();
       })
       .then((res) => {
-        console.log(res);
         if (res.status !== 200) throw new Error(res.error);
         return new NextResponse(
           JSON.stringify({ status: 200, two_factor_data: res.two_factor_data }),

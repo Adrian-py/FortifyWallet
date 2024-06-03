@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import Header from "@/components/header";
 import Navbar from "@/components/nav";
 import useAuth from "@/hooks/useAuth";
+import { SETUP_2FA_PAGE_URL, VERIFY_2FA_PAGE_URL } from "@/constants/constants";
 
 export default function DashboardLayout({
   children,
@@ -16,7 +17,9 @@ export default function DashboardLayout({
 
   useEffect(() => {
     checkAuthorization().then((res) => {
-      if (res) setVerified(true);
+      if (!res.enabled_two_factor) return router.push(SETUP_2FA_PAGE_URL);
+      else if (!res.verified_2fa) return router.push(VERIFY_2FA_PAGE_URL);
+      setVerified(true);
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

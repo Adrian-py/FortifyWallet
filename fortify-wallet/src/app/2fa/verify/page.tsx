@@ -27,7 +27,8 @@ export default function Verify2FAPage() {
       })
       .then((res) => {
         if (res.status === 200) return router.push("/dashboard");
-        alert(res.message);
+        alert(res.error);
+        e.currentTarget.reset();
         setOtp("");
       });
   };

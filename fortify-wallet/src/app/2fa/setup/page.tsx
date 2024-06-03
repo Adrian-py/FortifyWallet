@@ -4,7 +4,11 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import useAuth from "@/hooks/useAuth";
-import { VERIFY_2FA_PAGE_URL } from "@/constants/constants";
+import {
+  DASHBOARD_PAGE_URL,
+  SETUP_2FA_PAGE_URL,
+  VERIFY_2FA_PAGE_URL,
+} from "@/constants/constants";
 import Loading from "@/components/loading";
 
 interface QrDataInterface {
@@ -23,8 +27,9 @@ export default function Setup2FAPage() {
 
   useEffect(() => {
     checkAuthorization().then((res) => {
-      console.log(res);
-      if (res) fetch2FAData();
+      if (!res.enabled_two_factor) fetch2FAData();
+      else if (!res.verified_2fa) router.push(VERIFY_2FA_PAGE_URL);
+      else router.push(DASHBOARD_PAGE_URL);
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
