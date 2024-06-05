@@ -1,10 +1,10 @@
 import mysql from "mysql";
 
 const connection = mysql.createConnection({
-  host: "localhost",
-  user: "root",
-  password: "",
-  database: "fortify_wallet",
+  host: process.env.SQL_HOST || "localhost",
+  user: process.env.SQL_USERNAME || "root",
+  password: process.env.SQL_PASSWORD || "",
+  database: process.env.SQL_DATABASE || "fortify_wallet",
 });
 
 async function connectToDatabase() {
